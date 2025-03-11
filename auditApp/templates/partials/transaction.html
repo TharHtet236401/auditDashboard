@@ -1,0 +1,17 @@
+
+{% if transactions.count > 0 %}
+{% for transaction in transactions %}
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">{{ transaction.merchant }}</h5>
+        <p class="card-text">{{ transaction.amount }}</p>
+        <p class="card-text">{{ transaction.status }}</p>
+        <p class="card-text">{{ transaction.isFlagged }}</p>
+        <p class="card-text">{{ transaction.approved_by }}</p>
+    </div>
+</div>
+{% endfor %}
+{% else %}
+<p>No transactions found</p>
+{% endif %}
+
