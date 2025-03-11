@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Transaction Audit Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://unpkg.com/htmx.org@1.9.5"></script>
     <style>
       body {
@@ -28,6 +29,137 @@
         border: none;
         border-radius: 0;
       }
+
+      /* Transaction Table Styles */
+      .transaction-wrapper {
+          background: #fff;
+          border-radius: 12px;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+          padding: 1.5rem;
+      }
+
+      .transaction-table {
+          width: 100%;
+          border-collapse: separate;
+          border-spacing: 0;
+      }
+
+      .transaction-table th {
+          color: #64748b;
+          font-size: 0.875rem;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          padding: 1rem;
+          text-align: left;
+          border-bottom: 2px solid #f1f5f9;
+      }
+
+      .transaction-table td {
+          padding: 1rem;
+          border-bottom: 1px solid #f1f5f9;
+      }
+
+      .transaction-table tr:last-child td {
+          border-bottom: none;
+      }
+
+      .merchant-cell {
+          font-weight: 500;
+          color: #1e293b;
+      }
+
+      .amount-cell {
+          font-weight: 500;
+          color: #1e293b;
+      }
+
+      /* Status Styles */
+      .status-select {
+          appearance: none;
+          width: 100%;
+          padding: 0.625rem 1rem;
+          border-radius: 8px;
+          font-weight: 500;
+          font-size: 0.875rem;
+          cursor: pointer;
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+          background-repeat: no-repeat;
+          background-position: right 0.75rem center;
+          background-size: 1rem;
+          transition: all 0.2s ease;
+      }
+
+      .status-select.approved {
+          background-color: rgba(34, 197, 94, 0.15);
+          color: rgb(22, 163, 74);
+          border: 2px solid rgb(34, 197, 94);
+      }
+
+      .status-select.pending {
+          background-color: rgba(234, 179, 8, 0.15);
+          color: rgb(202, 138, 4);
+          border: 2px solid rgb(234, 179, 8);
+      }
+
+      .status-select.rejected {
+          background-color: rgba(239, 68, 68, 0.15);
+          color: rgb(220, 38, 38);
+          border: 2px solid rgb(239, 68, 68);
+      }
+
+      .status-select.flagged {
+          background-color: rgba(239, 68, 68, 0.15);
+          color: rgb(220, 38, 38);
+          border: 2px solid rgb(239, 68, 68);
+      }
+
+      .status-select.clear {
+          background-color: rgba(34, 197, 94, 0.15);
+          color: rgb(22, 163, 74);
+          border: 2px solid rgb(34, 197, 94);
+      }
+
+      /* Action Button */
+      .action-btn {
+          display: inline-flex;
+          align-items: center;
+          padding: 0.5rem 1rem;
+          border-radius: 8px;
+          font-weight: 500;
+          font-size: 0.875rem;
+          color: #3b82f6;
+          background-color: rgba(59, 130, 246, 0.1);
+          border: 1px solid rgba(59, 130, 246, 0.2);
+          cursor: pointer;
+          transition: all 0.2s ease;
+      }
+
+      .action-btn:hover {
+          background-color: rgba(59, 130, 246, 0.15);
+      }
+
+      .action-btn i {
+          margin-right: 0.5rem;
+      }
+
+      .approved-by {
+          color: #64748b;
+          font-weight: 500;
+      }
+
+      /* Custom Select Dropdown */
+      .status-select option {
+          background-color: white;
+          color: #1e293b;
+          padding: 0.5rem;
+      }
+
+      .text-right {
+          text-align: right;
+      }
+
+      /* Other existing styles */
       .table {
         background-color: white;
         border-radius: 12px;

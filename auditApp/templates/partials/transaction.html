@@ -1,133 +1,4 @@
 {% if transactions.count > 0 %}
-<style>
-    .transaction-wrapper {
-        background: #fff;
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        padding: 1.5rem;
-    }
-
-    .transaction-table {
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
-    }
-
-    .transaction-table th {
-        color: #64748b;
-        font-size: 0.875rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        padding: 1rem;
-        text-align: left;
-        border-bottom: 2px solid #f1f5f9;
-    }
-
-    .transaction-table td {
-        padding: 1rem;
-        border-bottom: 1px solid #f1f5f9;
-    }
-
-    .transaction-table tr:last-child td {
-        border-bottom: none;
-    }
-
-    .merchant-cell {
-        font-weight: 500;
-        color: #1e293b;
-    }
-
-    .amount-cell {
-        font-weight: 500;
-        color: #1e293b;
-    }
-
-    /* Status Styles */
-    .status-select {
-        appearance: none;
-        width: 100%;
-        padding: 0.625rem 1rem;
-        border-radius: 8px;
-        font-weight: 500;
-        font-size: 0.875rem;
-        cursor: pointer;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-        background-repeat: no-repeat;
-        background-position: right 0.75rem center;
-        background-size: 1rem;
-    }
-
-    .status-select.approved {
-        background-color: rgba(34, 197, 94, 0.1);
-        color: rgb(34, 197, 94);
-        border: 1px solid rgba(34, 197, 94, 0.2);
-    }
-
-    .status-select.pending {
-        background-color: rgba(234, 179, 8, 0.1);
-        color: rgb(234, 179, 8);
-        border: 1px solid rgba(234, 179, 8, 0.2);
-    }
-
-    .status-select.rejected {
-        background-color: rgba(239, 68, 68, 0.1);
-        color: rgb(239, 68, 68);
-        border: 1px solid rgba(239, 68, 68, 0.2);
-    }
-
-    .status-select.flagged {
-        background-color: rgba(239, 68, 68, 0.1);
-        color: rgb(239, 68, 68);
-        border: 1px solid rgba(239, 68, 68, 0.2);
-    }
-
-    .status-select.clear {
-        background-color: rgba(34, 197, 94, 0.1);
-        color: rgb(34, 197, 94);
-        border: 1px solid rgba(34, 197, 94, 0.2);
-    }
-
-    /* Action Button */
-    .action-btn {
-        display: inline-flex;
-        align-items: center;
-        padding: 0.5rem 1rem;
-        border-radius: 8px;
-        font-weight: 500;
-        font-size: 0.875rem;
-        color: #3b82f6;
-        background-color: rgba(59, 130, 246, 0.1);
-        border: 1px solid rgba(59, 130, 246, 0.2);
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-
-    .action-btn:hover {
-        background-color: rgba(59, 130, 246, 0.15);
-    }
-
-    .action-btn i {
-        margin-right: 0.5rem;
-    }
-
-    .approved-by {
-        color: #64748b;
-        font-weight: 500;
-    }
-
-    /* Custom Select Dropdown */
-    .status-select option {
-        background-color: white;
-        color: #1e293b;
-        padding: 0.5rem;
-    }
-
-    .text-right {
-        text-align: right;
-    }
-</style>
-
 <div class="transaction-wrapper">
     <table class="transaction-table">
         <thead>
@@ -153,6 +24,7 @@
                     <select class="status-select {% if transaction.status == 'Approved' %}approved{% elif transaction.status == 'Pending' %}pending{% else %}rejected{% endif %}"
                             hx-post="{% url 'update_status' transaction.id %}"
                             hx-target="#transaction-list"
+                            hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
                             name="status">
                         <option value="Approved" {% if transaction.status == 'Approved' %}selected{% endif %}>Approved</option>
                         <option value="Pending" {% if transaction.status == 'Pending' %}selected{% endif %}>Pending</option>
@@ -163,13 +35,14 @@
                     <select class="status-select {% if transaction.isFlagged %}flagged{% else %}clear{% endif %}"
                             hx-post="{% url 'update_flag' transaction.id %}"
                             hx-target="#transaction-list"
+                            hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
                             name="is_flagged">
                         <option value="false" {% if not transaction.isFlagged %}selected{% endif %}>Clear</option>
                         <option value="true" {% if transaction.isFlagged %}selected{% endif %}>Flagged</option>
                     </select>
                 </td>
                 <td>
-                    <span class="approved-by">{{ transaction.approved_by|default:"Not Approved" }}</span>
+                    <span class="approved-by">{{ transaction.approved_by.username|default:"Not Approved" }}</span>
                 </td>
                 <td class="text-right">
                     <button class="action-btn"

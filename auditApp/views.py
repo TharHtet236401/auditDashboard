@@ -76,11 +76,13 @@ def update_status(request, pk):
         new_status = request.POST.get('status')
         
         if new_status not in ['Approved', 'Pending', 'Rejected']:
-            return HttpResponse('Invalid status', status=400)
+            return messages.error(request, 'Invalid status')
             
         transaction.status = new_status
         if new_status == 'Approved':
-            transaction.approved_by = request.user.username
+            transaction.approved_by = request.user
+        else:
+            transaction.approved_by = None
         transaction.save()
         
         # Return the updated transaction list
@@ -88,7 +90,7 @@ def update_status(request, pk):
         return render(request, 'partials/transaction.html', {'transactions': transactions})
         
     except Exception as e:
-        return HttpResponse(str(e), status=500)
+        return messages.error(request, str(e))
 
 @login_required
 def update_flag(request, pk):
