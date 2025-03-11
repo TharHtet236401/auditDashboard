@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -34,7 +34,7 @@ def login_view(request):
 @login_required
 def home(request):
     try:
-        transactions = Transaction.objects.all()
+        transactions = Transaction.objects.all().order_by('-timestamp')
         return render(request, 'home.html', {'transactions': transactions})
     except Exception as e:
         messages.error(request, str(e))
@@ -45,8 +45,25 @@ def logout_view(request):
     messages.success(request, 'Successfully logged out')
     return redirect('login')
 
+@login_required
 def transaction_detail(request, pk):
-    transaction = Transaction.objects.get(pk=pk)
-    return render(request, 'partials/transaction_detail.html', {'transaction': transaction})
+    try:
+        transaction = get_object_or_404(Transaction, pk=pk)
+        return render(request, 'partials/transaction_detail.html', {
+            'transaction': transaction
+        })
+    except Exception as e:
+        return HttpResponse(
+            '''<div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-danger">Error</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-danger">Failed to load transaction details: {}</p>
+                </div>
+            </div>'''.format(str(e)),
+            status=500
+        )
 
 

@@ -12,7 +12,12 @@
         </thead>
         <tbody class="table-group-divider">
             {% for transaction in transactions %}
-            <tr class="align-middle">
+            <tr class="align-middle cursor-pointer" 
+                hx-get="{% url 'transaction_detail' transaction.id %}"
+                hx-target="#transactionDetailModal .modal-content"
+                hx-trigger="click"
+                data-bs-toggle="modal" 
+                data-bs-target="#transactionDetailModal">
                 <td class="py-3">
                     <span class="fw-medium">{{ transaction.merchant }}</span>
                 </td>
@@ -53,6 +58,21 @@
         </tbody>
     </table>
 </div>
+
+<!-- Modal for Transaction Details -->
+<div class="modal fade" id="transactionDetailModal" tabindex="-1" aria-labelledby="transactionDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <!-- Loading spinner -->
+            <div class="d-flex justify-content-center p-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% else %}
 <div class="alert alert-info" role="alert">
     No transactions found

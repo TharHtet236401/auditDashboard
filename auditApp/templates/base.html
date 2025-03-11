@@ -46,6 +46,7 @@
       .table tbody tr:hover {
         background-color: #f8f9fa;
         transition: all 0.2s ease;
+        cursor: pointer;
       }
       .table td, .table th {
         border-color: #e9ecef;
@@ -69,6 +70,39 @@
       }
       .fw-medium {
         font-weight: 500 !important;
+      }
+      .cursor-pointer {
+        cursor: pointer;
+      }
+      /* Modal Styles */
+      .modal-content {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+      }
+      .modal-header {
+        border-bottom: 1px solid #e9ecef;
+        padding: 1.5rem;
+        background-color: #f8f9fa;
+      }
+      .modal-body {
+        padding: 1.5rem;
+      }
+      .modal-dialog {
+        margin: 1.75rem auto;
+        max-width: 600px;
+      }
+      .modal.fade .modal-dialog {
+        transform: scale(0.95);
+        transition: transform 0.2s ease-out;
+      }
+      .modal.show .modal-dialog {
+        transform: scale(1);
+      }
+      /* Loading Spinner */
+      .spinner-border {
+        width: 3rem;
+        height: 3rem;
       }
     </style>
   </head>
