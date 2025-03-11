@@ -47,8 +47,9 @@
                 <td class="text-right">
                     <button class="action-btn"
                             hx-get="{% url 'transaction_detail' transaction.id %}"
-                            hx-target="#transaction-list"
-                            hx-push-url="true">
+                            hx-target="#modal-content"
+                            data-bs-toggle="modal" 
+                            data-bs-target="#transactionModal">
                         <i class="fas fa-eye"></i>Details
                     </button>
                 </td>
