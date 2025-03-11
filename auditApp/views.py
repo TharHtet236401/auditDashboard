@@ -3,6 +3,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
+from django.core.paginator import Paginator
 from .models import Transaction
 
 # Create your views here.
@@ -34,7 +35,21 @@ def login_view(request):
 @login_required
 def home(request):
     try:
-        transactions = Transaction.objects.all().order_by('-timestamp')
+        transactions_list = Transaction.objects.all().order_by('-timestamp')
+        
+        # Debug information
+        total_count = transactions_list.count()
+        if total_count == 0:
+            messages.info(request, 'No transactions in database. Please run python manage.py generate_fake_transactions to create some test data.')
+        
+        paginator = Paginator(transactions_list, 10)  # Show 10 transactions per page
+        page = request.GET.get('page', 1)
+        transactions = paginator.get_page(page)
+        
+        # If it's an HTMX request, return only the table partial
+        if request.headers.get('HX-Request'):
+            return render(request, 'partials/transaction.html', {'transactions': transactions})
+            
         return render(request, 'home.html', {'transactions': transactions})
     except Exception as e:
         messages.error(request, str(e))
@@ -85,12 +100,18 @@ def update_status(request, pk):
             transaction.approved_by = None
         transaction.save()
         
-        # Return the updated transaction list
-        transactions = Transaction.objects.all().order_by('-timestamp')
+        # Get current page from request
+        page = request.GET.get('page', 1)
+        
+        # Return the updated transaction list with pagination
+        transactions_list = Transaction.objects.all().order_by('-timestamp')
+        paginator = Paginator(transactions_list, 10)
+        transactions = paginator.get_page(page)
+        
         return render(request, 'partials/transaction.html', {'transactions': transactions})
         
     except Exception as e:
-        return messages.error(request, str(e))
+        return HttpResponse(str(e), status=500)
 
 @login_required
 def update_flag(request, pk):
@@ -104,8 +125,14 @@ def update_flag(request, pk):
         transaction.isFlagged = is_flagged
         transaction.save()
         
-        # Return the updated transaction list
-        transactions = Transaction.objects.all().order_by('-timestamp')
+        # Get current page from request
+        page = request.GET.get('page', 1)
+        
+        # Return the updated transaction list with pagination
+        transactions_list = Transaction.objects.all().order_by('-timestamp')
+        paginator = Paginator(transactions_list, 10)
+        transactions = paginator.get_page(page)
+        
         return render(request, 'partials/transaction.html', {'transactions': transactions})
         
     except Exception as e:

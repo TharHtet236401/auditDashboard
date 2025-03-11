@@ -1,4 +1,4 @@
-{% if transactions.count > 0 %}
+{% if transactions.object_list %}
 <div class="transaction-wrapper">
     <table class="transaction-table">
         <thead>
@@ -22,7 +22,7 @@
                 </td>
                 <td style="min-width: 140px;">
                     <select class="status-select {% if transaction.status == 'Approved' %}approved{% elif transaction.status == 'Pending' %}pending{% else %}rejected{% endif %}"
-                            hx-post="{% url 'update_status' transaction.id %}"
+                            hx-post="{% url 'update_status' transaction.id %}?page={{ transactions.number }}"
                             hx-target="#transaction-list"
                             hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
                             name="status">
@@ -33,7 +33,7 @@
                 </td>
                 <td style="min-width: 140px;">
                     <select class="status-select {% if transaction.isFlagged %}flagged{% else %}clear{% endif %}"
-                            hx-post="{% url 'update_flag' transaction.id %}"
+                            hx-post="{% url 'update_flag' transaction.id %}?page={{ transactions.number }}"
                             hx-target="#transaction-list"
                             hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
                             name="is_flagged">
@@ -56,6 +56,53 @@
             {% endfor %}
         </tbody>
     </table>
+
+    {% if transactions.paginator.num_pages > 1 %}
+    <div class="pagination-wrapper mt-4">
+        <nav aria-label="Transaction pagination">
+            <ul class="pagination justify-content-center">
+                {% if transactions.has_previous %}
+                <li class="page-item">
+                    <button class="page-link" 
+                            hx-get="{% url 'home' %}?page={{ transactions.previous_page_number }}"
+                            hx-target="#transaction-list">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                </li>
+                {% endif %}
+
+                {% for num in transactions.paginator.page_range %}
+                    {% if num == transactions.number %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+                    {% elif num > transactions.number|add:'-3' and num < transactions.number|add:'3' %}
+                    <li class="page-item">
+                        <button class="page-link"
+                                hx-get="{% url 'home' %}?page={{ num }}"
+                                hx-target="#transaction-list">
+                            {{ num }}
+                        </button>
+                    </li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if transactions.has_next %}
+                <li class="page-item">
+                    <button class="page-link"
+                            hx-get="{% url 'home' %}?page={{ transactions.next_page_number }}"
+                            hx-target="#transaction-list">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        <div class="text-center text-muted mt-2">
+            Showing page {{ transactions.number }} of {{ transactions.paginator.num_pages }}
+        </div>
+    </div>
+    {% endif %}
 </div>
 {% else %}
 <div class="alert alert-info" role="alert">
