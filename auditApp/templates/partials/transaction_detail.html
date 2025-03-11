@@ -1,59 +1,90 @@
 {% if transaction %}
-<div class="modal-content">
-    <div class="modal-header">
-        <h5 class="modal-title">Transaction Details</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-    </div>
-    <div class="modal-body">
-        <div class="row g-3">
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="mb-0">Transaction Details</h4>
+            <button class="btn btn-outline-primary" 
+                    hx-get="{% url 'home' %}"
+                    hx-target="body"
+                    hx-push-url="true">
+                <i class="fas fa-arrow-left me-2"></i>Back to Transactions
+            </button>
+        </div>
+        
+        <div class="row g-4">
             <div class="col-md-6">
-                <label class="form-label text-muted">Merchant</label>
-                <p class="fw-medium">{{ transaction.merchant }}</p>
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h6 class="text-muted mb-3">Merchant Information</h6>
+                        <h5 class="card-title mb-3">{{ transaction.merchant }}</h5>
+                        <p class="card-text">
+                            <span class="badge bg-primary-subtle text-primary px-3 py-2">
+                                Amount: ${{ transaction.amount }}
+                            </span>
+                        </p>
+                    </div>
+                </div>
             </div>
+            
             <div class="col-md-6">
-                <label class="form-label text-muted">Amount</label>
-                <p class="fw-medium">${{ transaction.amount }}</p>
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h6 class="text-muted mb-3">Status Information</h6>
+                        <div class="d-flex gap-2 mb-3">
+                            {% if transaction.status == 'Approved' %}
+                                <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2">
+                                    Approved
+                                </span>
+                            {% elif transaction.status == 'Pending' %}
+                                <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-3 py-2">
+                                    Pending
+                                </span>
+                            {% else %}
+                                <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2">
+                                    {{ transaction.status }}
+                                </span>
+                            {% endif %}
+
+                            {% if transaction.isFlagged %}
+                                <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2">
+                                    Flagged
+                                </span>
+                            {% else %}
+                                <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2">
+                                    Clear
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
             </div>
+
             <div class="col-md-6">
-                <label class="form-label text-muted">Status</label>
-                <p>
-                    {% if transaction.status == 'Approved' %}
-                        <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2">
-                            Approved
-                        </span>
-                    {% elif transaction.status == 'Pending' %}
-                        <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-3 py-2">
-                            Pending
-                        </span>
-                    {% else %}
-                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2">
-                            {{ transaction.status }}
-                        </span>
-                    {% endif %}
-                </p>
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h6 class="text-muted mb-3">Approval Information</h6>
+                        <p class="mb-2">
+                            <strong>Approved By:</strong> 
+                            <span class="ms-2">{{ transaction.approved_by|default:"Not Approved" }}</span>
+                        </p>
+                        <p class="mb-0">
+                            <strong>Transaction Date:</strong>
+                            <span class="ms-2">{{ transaction.timestamp|date:"F d, Y H:i" }}</span>
+                        </p>
+                    </div>
+                </div>
             </div>
-            <div class="col-md-6">
-                <label class="form-label text-muted">Flag Status</label>
-                <p>
-                    {% if transaction.isFlagged %}
-                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2">
-                            Flagged
-                        </span>
-                    {% else %}
-                        <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2">
-                            Clear
-                        </span>
-                    {% endif %}
-                </p>
+
+            {% if transaction.notes %}
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="text-muted mb-3">Additional Notes</h6>
+                        <p class="mb-0">{{ transaction.notes }}</p>
+                    </div>
+                </div>
             </div>
-            <div class="col-md-6">
-                <label class="form-label text-muted">Approved By</label>
-                <p class="fw-medium">{{ transaction.approved_by|default:"Not Approved" }}</p>
-            </div>
-            <div class="col-md-6">
-                <label class="form-label text-muted">Transaction Date</label>
-                <p class="fw-medium">{{ transaction.timestamp|date:"F d, Y H:i" }}</p>
-            </div>
+            {% endif %}
         </div>
     </div>
 </div>
