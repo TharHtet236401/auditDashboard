@@ -8,4 +8,11 @@ build/
 .DS_Store
 .env
 *.local
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pyw
+*.pyz
+
         
