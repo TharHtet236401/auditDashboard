@@ -1,23 +1,46 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
+from .models import Transaction
 
 # Create your views here.
 def login_view(request):
+    # Redirect to home if user is already authenticated
+    if request.user.is_authenticated:
+        return redirect('home')
+        
     if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        
+        if not username or not password:
+            messages.error(request, 'Please provide both username and password')
+            return render(request, 'login.html')
+        
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            return redirect('home')
+            # Get the next parameter or default to home
+            next_url = request.GET.get('next', 'home')
+            if request.htmx:
+                response = HttpResponse()
+                response['HX-Redirect'] = next_url
+                return response
+            return redirect(next_url)
         else:
             messages.error(request, 'Invalid username or password')
+    
     return render(request, 'login.html')
+
 
 @login_required
 def home(request):
- 
-    return render(request, 'home.html')
+    try:
+        transactions = Transaction.objects.all()
+        return render(request, 'home.html', {'transactions': transactions})
+    except Exception as e:
+        messages.error(request, str(e))
+        return redirect('login')
 
