@@ -24,10 +24,6 @@ def login_view(request):
             login(request, user)
             # Get the next parameter or default to home
             next_url = request.GET.get('next', 'home')
-            if request.htmx:
-                response = HttpResponse()
-                response['HX-Redirect'] = next_url
-                return response
             return redirect(next_url)
         else:
             messages.error(request, 'Invalid username or password')
@@ -43,4 +39,9 @@ def home(request):
     except Exception as e:
         messages.error(request, str(e))
         return redirect('login')
+
+def logout_view(request):
+    logout(request)
+    messages.success(request, 'Successfully logged out')
+    return redirect('login')
 
