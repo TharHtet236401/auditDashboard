@@ -1,33 +1,53 @@
 {% if transactions.count > 0 %}
 <div class="table-responsive">
-    <table class="table table-striped table-hover">
-        <thead class="table-dark">
-            <tr>
-                <th>Merchant</th>
-                <th>Amount</th>
-                <th>Status</th>
-                <th>Flagged</th>
-                <th>Approved By</th>
+    <table class="table table-hover align-middle">
+        <thead>
+            <tr class="bg-light">
+                <th scope="col" class="rounded-start-2 py-3">Merchant</th>
+                <th scope="col" class="py-3">Amount</th>
+                <th scope="col" class="py-3">Status</th>
+                <th scope="col" class="py-3">Flag Status</th>
+                <th scope="col" class="rounded-end-2 py-3">Approved By</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody class="table-group-divider">
             {% for transaction in transactions %}
-            <tr>
-                <td>{{ transaction.merchant }}</td>
-                <td>{{ transaction.amount }}</td>
-                <td>
-                    <span class="badge {% if transaction.status == 'Approved' %}bg-success{% elif transaction.status == 'Pending' %}bg-warning{% else %}bg-danger{% endif %}">
-                        {{ transaction.status }}
-                    </span>
+            <tr class="align-middle">
+                <td class="py-3">
+                    <span class="fw-medium">{{ transaction.merchant }}</span>
                 </td>
-                <td>
-                    {% if transaction.isFlagged %}
-                    <span class="badge bg-danger">Yes</span>
+                <td class="py-3">
+                    <span class="fw-medium">${{ transaction.amount }}</span>
+                </td>
+                <td class="py-3">
+                    {% if transaction.status == 'Approved' %}
+                        <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2">
+                            Approved
+                        </span>
+                    {% elif transaction.status == 'Pending' %}
+                        <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-3 py-2">
+                            Pending
+                        </span>
                     {% else %}
-                    <span class="badge bg-success">No</span>
+                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2">
+                            {{ transaction.status }}
+                        </span>
                     {% endif %}
                 </td>
-                <td>{{ transaction.approved_by }}</td>
+                <td class="py-3">
+                    {% if transaction.isFlagged %}
+                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2">
+                            Flagged
+                        </span>
+                    {% else %}
+                        <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2">
+                            Clear
+                        </span>
+                    {% endif %}
+                </td>
+                <td class="py-3">
+                    <span class="fw-medium">{{ transaction.approved_by|default:"Not Approved" }}</span>
+                </td>
             </tr>
             {% endfor %}
         </tbody>
