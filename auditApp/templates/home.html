@@ -1,5 +1,28 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>Home</h1>
+<div class="container">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Merchant</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Flagged</th>
+                <th>Approved By</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for transaction in transactions %}
+            <tr>
+                <td>{{ transaction.merchant }}</td>
+                <td>{{ transaction.amount }}</td>
+                <td>{{ transaction.status }}</td>
+                <td>{{ transaction.isFlagged }}</td>
+                <td>{{ transaction.approved_by }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 {% endblock %}
