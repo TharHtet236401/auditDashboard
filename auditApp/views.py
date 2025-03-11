@@ -66,4 +66,47 @@ def transaction_detail(request, pk):
             status=500
         )
 
+@login_required
+def update_status(request, pk):
+    try:
+        if request.method != 'POST':
+            return HttpResponse('Method not allowed', status=405)
+            
+        transaction = get_object_or_404(Transaction, pk=pk)
+        new_status = request.POST.get('status')
+        
+        if new_status not in ['Approved', 'Pending', 'Rejected']:
+            return HttpResponse('Invalid status', status=400)
+            
+        transaction.status = new_status
+        if new_status == 'Approved':
+            transaction.approved_by = request.user.username
+        transaction.save()
+        
+        # Return the updated transaction list
+        transactions = Transaction.objects.all().order_by('-timestamp')
+        return render(request, 'partials/transaction.html', {'transactions': transactions})
+        
+    except Exception as e:
+        return HttpResponse(str(e), status=500)
+
+@login_required
+def update_flag(request, pk):
+    try:
+        if request.method != 'POST':
+            return HttpResponse('Method not allowed', status=405)
+            
+        transaction = get_object_or_404(Transaction, pk=pk)
+        is_flagged = request.POST.get('is_flagged') == 'true'
+        
+        transaction.isFlagged = is_flagged
+        transaction.save()
+        
+        # Return the updated transaction list
+        transactions = Transaction.objects.all().order_by('-timestamp')
+        return render(request, 'partials/transaction.html', {'transactions': transactions})
+        
+    except Exception as e:
+        return HttpResponse(str(e), status=500)
+
 
