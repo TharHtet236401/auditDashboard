@@ -45,3 +45,8 @@ def logout_view(request):
     messages.success(request, 'Successfully logged out')
     return redirect('login')
 
+def transaction_detail(request, pk):
+    transaction = Transaction.objects.get(pk=pk)
+    return render(request, 'partials/transaction_detail.html', {'transaction': transaction})
+
+

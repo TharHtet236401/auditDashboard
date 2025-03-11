@@ -1,0 +1,60 @@
+{% if transaction %}
+<div class="modal-content">
+    <div class="modal-header">
+        <h5 class="modal-title">Transaction Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label text-muted">Merchant</label>
+                <p class="fw-medium">{{ transaction.merchant }}</p>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label text-muted">Amount</label>
+                <p class="fw-medium">${{ transaction.amount }}</p>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label text-muted">Status</label>
+                <p>
+                    {% if transaction.status == 'Approved' %}
+                        <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2">
+                            Approved
+                        </span>
+                    {% elif transaction.status == 'Pending' %}
+                        <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-3 py-2">
+                            Pending
+                        </span>
+                    {% else %}
+                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2">
+                            {{ transaction.status }}
+                        </span>
+                    {% endif %}
+                </p>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label text-muted">Flag Status</label>
+                <p>
+                    {% if transaction.isFlagged %}
+                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2">
+                            Flagged
+                        </span>
+                    {% else %}
+                        <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2">
+                            Clear
+                        </span>
+                    {% endif %}
+                </p>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label text-muted">Approved By</label>
+                <p class="fw-medium">{{ transaction.approved_by|default:"Not Approved" }}</p>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label text-muted">Transaction Date</label>
+                <p class="fw-medium">{{ transaction.timestamp|date:"F d, Y H:i" }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %} 
