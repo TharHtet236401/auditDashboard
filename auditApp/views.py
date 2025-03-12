@@ -68,18 +68,8 @@ def transaction_detail(request, pk):
             'transaction': transaction
         })
     except Exception as e:
-        return HttpResponse(
-            '''<div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title text-danger">Error</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p class="text-danger">Failed to load transaction details: {}</p>
-                </div>
-            </div>'''.format(str(e)),
-            status=500
-        )
+        messages.error(request, str(e))
+        return redirect('home')
 
 @login_required
 def update_status(request, pk):
