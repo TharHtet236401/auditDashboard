@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.core.paginator import Paginator
 from .models import Transaction
+from .forms import TransactionForm
 
 # Create your views here.
 def login_view(request):
@@ -128,4 +129,12 @@ def update_flag(request, pk):
     except Exception as e:
         return HttpResponse(str(e), status=500)
 
-
+def add_transaction(request):
+    if request.method == 'POST':
+        form = TransactionForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('home')
+    else:
+        form = TransactionForm()
+    return render(request, 'partials/transaction_form.html', {'form': form})
