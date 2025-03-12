@@ -1,41 +1,6 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div id="transaction-container">
-    <!-- Fixed Header Section -->
-    <div class="row mb-4">
-        <div class="col">
-            <h2 class="page-header">
-                <i class="fas fa-exchange-alt me-2"></i>Transaction Overview
-            </h2>
-        </div>
-        <div class="col-auto">
-            <button hx-get="{% url 'add_transaction' %}" 
-                    hx-target="#main-content" 
-                    hx-swap="innerHTML" 
-                    class="btn btn-outline-primary">
-                <i class="fas fa-plus me-1"></i>Add Transaction
-            </button>
-        </div>
-        <div class="col-auto">
-            <div class="btn-group" role="group">
-                <button type="button" class="btn btn-outline-primary">
-                    <i class="fas fa-filter me-1"></i>Filter
-                </button>
-                <button type="button" class="btn btn-outline-primary">
-                    <i class="fas fa-sort me-1"></i>Sort
-                </button>
-                <button type="button" class="btn btn-outline-primary">
-                    <i class="fas fa-download me-1"></i>Export
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Swappable Content Area -->
-    <div id="main-content">
-        {% include 'partials/transaction.html' %}
-    </div>
-</div>
+    {% include 'partials/home_content.html' %}
 {% endblock %}
 

@@ -17,16 +17,10 @@
     <button type="submit" class="btn btn-primary">
         <i class="fas fa-plus-circle me-2"></i>Add Transaction
     </button>
-    {% if request.headers.HX_REQUEST %}
     <button type="button" class="btn btn-secondary" 
             hx-get="{% url 'home' %}" 
-            hx-target="#main-content"
-            hx-push-url="true">
+            hx-target="#transaction-container"
+            hx-swap="innerHTML">
         <i class="fas fa-times me-2"></i>Cancel
     </button>
-    {% else %}
-    <a href="{% url 'home' %}" class="btn btn-secondary">
-        <i class="fas fa-times me-2"></i>Cancel
-    </a>
-    {% endif %}
 </div> 

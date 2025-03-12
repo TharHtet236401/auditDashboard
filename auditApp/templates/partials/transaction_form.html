@@ -1,14 +1,20 @@
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">
-                    <h4 class="mb-0">Add New Transaction</h4>
-                </div>
-                <div class="card-body">
-                    <form method="post" action="{% url 'add_transaction' %}" class="needs-validation">
-                        {% include 'partials/form_content.html' %}
-                    </form>
+<div id="transaction-container">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col">
+                <h2 class="page-header">
+                    <i class="fas fa-plus-circle me-2"></i>Add New Transaction
+                </h2>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        <form method="post" action="{% url 'add_transaction' %}" class="needs-validation">
+                            {% include 'partials/form_content.html' %}
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>

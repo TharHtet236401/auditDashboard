@@ -38,19 +38,21 @@ def home(request):
     try:
         transactions_list = Transaction.objects.all().order_by('-timestamp')
         
-        # Debug information
         total_count = transactions_list.count()
         if total_count == 0:
             messages.info(request, 'No transactions in database. Please run python manage.py generate_fake_transactions to create some test data.')
         
-        paginator = Paginator(transactions_list, 10)  # Show 10 transactions per page
+        paginator = Paginator(transactions_list, 10)
         page = request.GET.get('page', 1)
         transactions = paginator.get_page(page)
         
-        # If it's an HTMX request, return only the table partial
         if request.headers.get('HX-Request'):
+            # Check if the target is transaction-container
+            if 'transaction-container' in request.headers.get('HX-Target', ''):
+                return render(request, 'partials/home_content.html', {'transactions': transactions})
+            # For other HTMX requests (like pagination)
             return render(request, 'partials/transaction.html', {'transactions': transactions})
-            
+        
         return render(request, 'home.html', {'transactions': transactions})
     except Exception as e:
         messages.error(request, str(e))
