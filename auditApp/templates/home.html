@@ -10,7 +10,10 @@
             </h2>
         </div>
         <div class="col-auto">
-            <button hx-get="{% url 'add_transaction' %}" hx-target=".main-content" hx-swap="innerHTML" hx-push-url="true" class="btn btn-outline-primary">
+            <button hx-get="{% url 'add_transaction' %}" 
+                    hx-target="#main-content" 
+                    hx-swap="innerHTML" 
+                    class="btn btn-outline-primary">
                 <i class="fas fa-plus me-1"></i>Add Transaction
             </button>
         </div>
@@ -30,7 +33,7 @@
     </div>
 
     <!-- Swappable Content Area -->
-    <div id="transaction-list">
+    <div id="main-content">
         {% include 'partials/transaction.html' %}
     </div>
 </div>

@@ -23,7 +23,7 @@
                 <td style="min-width: 140px;">
                     <select class="status-select {% if transaction.status == 'Approved' %}approved{% elif transaction.status == 'Pending' %}pending{% else %}rejected{% endif %}"
                             hx-post="{% url 'update_status' transaction.id %}?page={{ transactions.number }}"
-                            hx-target="#transaction-list"
+                            hx-target="#main-content"
                             hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
                             name="status">
                         <option value="Approved" {% if transaction.status == 'Approved' %}selected{% endif %}>Approved</option>
@@ -34,7 +34,7 @@
                 <td style="min-width: 140px;">
                     <select class="status-select {% if transaction.isFlagged %}flagged{% else %}clear{% endif %}"
                             hx-post="{% url 'update_flag' transaction.id %}?page={{ transactions.number }}"
-                            hx-target="#transaction-list"
+                            hx-target="#main-content"
                             hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
                             name="is_flagged">
                         <option value="false" {% if not transaction.isFlagged %}selected{% endif %}>Clear</option>
@@ -66,7 +66,7 @@
                 <li class="page-item">
                     <button class="page-link" 
                             hx-get="{% url 'home' %}?page={{ transactions.previous_page_number }}"
-                            hx-target="#transaction-list">
+                            hx-target="#main-content">
                         <i class="fas fa-chevron-left"></i>
                     </button>
                 </li>
@@ -81,7 +81,7 @@
                     <li class="page-item">
                         <button class="page-link"
                                 hx-get="{% url 'home' %}?page={{ num }}"
-                                hx-target="#transaction-list">
+                                hx-target="#main-content">
                             {{ num }}
                         </button>
                     </li>
@@ -92,7 +92,7 @@
                 <li class="page-item">
                     <button class="page-link"
                             hx-get="{% url 'home' %}?page={{ transactions.next_page_number }}"
-                            hx-target="#transaction-list">
+                            hx-target="#main-content">
                         <i class="fas fa-chevron-right"></i>
                     </button>
                 </li>
