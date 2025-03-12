@@ -129,12 +129,22 @@ def update_flag(request, pk):
     except Exception as e:
         return HttpResponse(str(e), status=500)
 
+@login_required
 def add_transaction(request):
     if request.method == 'POST':
         form = TransactionForm(request.POST)
         if form.is_valid():
             form.save()
+            messages.success(request, 'Transaction added successfully!')
             return redirect('home')
+        else:
+            messages.error(request, 'Please correct the errors below.')
     else:
         form = TransactionForm()
-    return render(request, 'partials/transaction_form.html', {'form': form})
+
+    # Check if it's an HTMX request
+    if request.headers.get('HX-Request'):
+        return render(request, 'partials/transaction_form.html', {'form': form})
+    else:
+        # For direct URL access, use the full template
+        return render(request, 'add_transaction.html', {'form': form})

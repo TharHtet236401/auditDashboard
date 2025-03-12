@@ -1,10 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
 <div class="container">
+    <div class="row mb-4">
+        <div class="col">
+            <h2 class="page-header">
+                <i class="fas fa-plus-circle me-2"></i>Add New Transaction
+            </h2>
+        </div>
+    </div>
+    
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card">
-                <div class="card-header">
-                    <h4 class="mb-0">Add New Transaction</h4>
-                </div>
                 <div class="card-body">
                     <form method="post" action="{% url 'add_transaction' %}" class="needs-validation">
                         {% csrf_token %}
@@ -26,12 +34,9 @@
                             <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-plus-circle me-2"></i>Add Transaction
                             </button>
-                            <button type="button" class="btn btn-secondary" 
-                                    hx-get="{% url 'home' %}" 
-                                    hx-target=".main-content"
-                                    hx-push-url="true">
+                            <a href="{% url 'home' %}" class="btn btn-secondary">
                                 <i class="fas fa-times me-2"></i>Cancel
-                            </button>
+                            </a>
                         </div>
                     </form>
                 </div>
@@ -39,6 +44,4 @@
         </div>
     </div>
 </div>
-
-
-
+{% endblock %} 
