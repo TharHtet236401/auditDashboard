@@ -1,90 +1,47 @@
 {% if transaction %}
 <div class="modal-content">
- 
-    <div class="modal-header">
-        <h4 class="modal-title">Transaction Details</h4>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-    </div>
+    <!-- ... existing transaction details ... -->
+    
     <div class="modal-body">
-        <div class="row g-4">
-            <div class="col-md-6">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <h6 class="text-muted mb-3">Merchant Information</h6>
-                        <h5 class="card-title mb-3">{{ transaction.merchant }}</h5>
-                        <p class="card-text">
-                            <span class="badge bg-primary-subtle text-primary px-3 py-2">
-                                Amount: ${{ transaction.amount }}
-                            </span>
-                        </p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-6">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <h6 class="text-muted mb-3">Status Information</h6>
-                        <div class="d-flex gap-2 mb-3">
-                            {% if transaction.status == 'Approved' %}
-                                <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2">
-                                    Approved
-                                </span>
-                            {% elif transaction.status == 'Pending' %}
-                                <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-3 py-2">
-                                    Pending
-                                </span>
-                            {% else %}
-                                <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2">
-                                    {{ transaction.status }}
-                                </span>
-                            {% endif %}
-
-                            {% if transaction.isFlagged %}
-                                <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2">
-                                    Flagged
-                                </span>
-                            {% else %}
-                                <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2">
-                                    Clear
-                                </span>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-6">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <h6 class="text-muted mb-3">Approval Information</h6>
-                        <p class="mb-2">
-                            <strong>Approved By:</strong> 
-                            <span class="ms-2">{{ transaction.approved_by|default:"Not Approved" }}</span>
-                        </p>
-                        <p class="mb-0">
-                            <strong>Transaction Date:</strong>
-                            <span class="ms-2">{{ transaction.timestamp|date:"F d, Y H:i" }}</span>
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            {% if transaction.notes %}
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-body">
-                        <h6 class="text-muted mb-3">Additional Notes</h6>
-                        <p class="mb-0">{{ transaction.notes }}</p>
-                    </div>
-                </div>
-            </div>
-            {% endif %}
+        <!-- <h1>{{ transaction.get_history|length }}</h1> -->
+        <h5 class="mb-3">Change History</h5>
+        <div class="table-responsive">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Field</th>
+                        <th>Old Value</th>
+                        <th>New Value</th>
+                        <th>Changed By</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for history in transaction.get_history|slice:":5" %}
+                    <tr>
+                        <td>{{ history.changed_at|date:"Y-m-d H:i:s" }}</td>
+                        <td>{{ history.field_name }}</td>
+                        <td>{{ history.old_value }}</td>
+                        <td>{{ history.new_value }}</td>
+                        <td>{{ history.changed_by.username }}</td>
+                    </tr>
+                    {% endfor %}
+                    {% if transaction.get_history|length == 0 %}
+                   
+                        <td colspan="5" class="text-center">
+                            <strong>No history for this transaction</strong>
+                        </td>
+                     
+                   
+                    {% endif %}
+                    
+                </tbody>
+            </table>
         </div>
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
     </div>
 </div>
->
+{% else %}
 {% endif %} 

@@ -68,7 +68,7 @@ def logout_view(request):
 def transaction_detail(request, pk):
     try:
         transaction = Transaction.objects.get(pk=pk)
-        return render(request, 'transaction_detail.html', {
+        return render(request, 'partials/transaction_detail.html', {
             'transaction': transaction
         })
     except Exception as e:
