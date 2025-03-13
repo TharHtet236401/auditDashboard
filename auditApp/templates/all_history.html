@@ -12,9 +12,12 @@
             </p>
         </div>
         <div class="col-auto">
-            <a href="{% url 'home' %}" class="btn btn-outline-primary">
+            <button hx-get="{% url 'home' %}"
+                    hx-target="#transaction-container"
+                    hx-swap="innerHTML"
+                    class="btn btn-outline-primary">
                 <i class="fas fa-arrow-left me-2"></i>Back to Transactions
-            </a>
+            </button>
         </div>
     </div>
 

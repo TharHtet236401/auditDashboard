@@ -24,13 +24,13 @@
                     </small>
                 </td>
                 <td>
-                    <button class="btn btn-link p-0 text-decoration-none"
-                            hx-get="{% url 'transaction_detail' entry.transaction.id %}"
-                            hx-target="#modal-content"
-                            data-bs-toggle="modal" 
-                            data-bs-target="#transactionModal">
+                    <a href="#" class="text-primary"
+                       hx-get="{% url 'transaction_detail' entry.transaction.id %}"
+                       hx-target="#modal-content"
+                       data-bs-toggle="modal" 
+                       data-bs-target="#transactionModal">
                         {{ entry.transaction.merchant }} - ${{ entry.transaction.amount }}
-                    </button>
+                    </a>
                 </td>
                 <td>
                     <span class="fw-medium">{{ entry.field_name }}</span>
