@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, JsonResponse
 from django.core.paginator import Paginator
-from .models import Transaction
+from .models import Transaction, TransactionHistory
 from .forms import TransactionForm
 from .signals import set_current_user
 
@@ -153,3 +153,52 @@ def add_transaction(request):
     else:
         # For direct URL access, use the full template
         return render(request, 'add_transaction.html', {'form': form})
+
+@login_required
+def transaction_history(request, pk):
+    try:
+        transaction = get_object_or_404(Transaction, pk=pk)
+        history = transaction.get_history()
+        
+        # If it's an HTMX request, return just the history content
+        if request.headers.get('HX-Request'):
+            return render(request, 'partials/transaction_history.html', {
+                'transaction': transaction,
+                'history': history
+            })
+        
+        # For direct URL access, return the full page
+        return render(request, 'transaction_history.html', {
+            'transaction': transaction,
+            'history': history
+        })
+        
+    except Exception as e:
+        return HttpResponse(str(e), status=500)
+
+@login_required
+def all_transaction_history(request):
+    try:
+        # Get all history entries ordered by timestamp
+        history = TransactionHistory.objects.all().select_related(
+            'transaction', 'changed_by'
+        ).order_by('-changed_at')
+        
+        # Setup pagination
+        paginator = Paginator(history, 20)  # Show 20 entries per page
+        page = request.GET.get('page', 1)
+        history_entries = paginator.get_page(page)
+        
+        # If it's an HTMX request, return just the history content
+        if request.headers.get('HX-Request'):
+            return render(request, 'partials/all_history.html', {
+                'history': history_entries
+            })
+        
+        # For direct URL access, return the full page
+        return render(request, 'all_history.html', {
+            'history': history_entries
+        })
+        
+    except Exception as e:
+        return HttpResponse(str(e), status=500)

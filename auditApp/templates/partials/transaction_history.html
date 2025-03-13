@@ -1,0 +1,68 @@
+{% if history %}
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Date & Time</th>
+                <th>Field</th>
+                <th>Old Value</th>
+                <th>New Value</th>
+                <th>Changed By</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for entry in history %}
+            <tr>
+                <td>
+                    <span class="text-muted">
+                        {{ entry.changed_at|date:"M d, Y" }}
+                    </span>
+                    <br>
+                    <small class="text-muted">
+                        {{ entry.changed_at|time:"H:i:s" }}
+                    </small>
+                </td>
+                <td>
+                    <span class="fw-medium">{{ entry.field_name }}</span>
+                </td>
+                <td>
+                    {% if entry.field_name == 'status' %}
+                        <span class="badge {% if entry.old_value == 'Approved' %}bg-success{% elif entry.old_value == 'Pending' %}bg-warning{% else %}bg-danger{% endif %}">
+                            {{ entry.old_value }}
+                        </span>
+                    {% elif entry.field_name == 'isFlagged' %}
+                        <span class="badge {% if entry.old_value == 'True' %}bg-danger{% else %}bg-success{% endif %}">
+                            {% if entry.old_value == 'True' %}Flagged{% else %}Clear{% endif %}
+                        </span>
+                    {% else %}
+                        {{ entry.old_value }}
+                    {% endif %}
+                </td>
+                <td>
+                    {% if entry.field_name == 'status' %}
+                        <span class="badge {% if entry.new_value == 'Approved' %}bg-success{% elif entry.new_value == 'Pending' %}bg-warning{% else %}bg-danger{% endif %}">
+                            {{ entry.new_value }}
+                        </span>
+                    {% elif entry.field_name == 'isFlagged' %}
+                        <span class="badge {% if entry.new_value == 'True' %}bg-danger{% else %}bg-success{% endif %}">
+                            {% if entry.new_value == 'True' %}Flagged{% else %}Clear{% endif %}
+                        </span>
+                    {% else %}
+                        {{ entry.new_value }}
+                    {% endif %}
+                </td>
+                <td>
+                    <span class="text-muted">
+                        {{ entry.changed_by.username }}
+                    </span>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="alert alert-info" role="alert">
+    <i class="fas fa-info-circle me-2"></i>No history records found for this transaction.
+</div>
+{% endif %} 

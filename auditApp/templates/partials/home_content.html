@@ -25,6 +25,12 @@
                 <button type="button" class="btn btn-outline-primary">
                     <i class="fas fa-download me-1"></i>Export
                 </button>
+                <button hx-get="{% url 'all_history' %}"
+                        hx-target="#transaction-container"
+                        hx-swap="innerHTML"
+                        class="btn btn-outline-primary">
+                    <i class="fas fa-history me-1"></i>View All History
+                </button>
             </div>
         </div>
     </div>

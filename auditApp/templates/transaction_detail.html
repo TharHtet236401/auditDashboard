@@ -1,3 +1,4 @@
+{% if transaction %}
 <div class="modal-content">
     <!-- ... existing transaction details ... -->
     
@@ -15,7 +16,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for history in transaction.get_history %}
+                    {% for history in transaction.get_history|slice:":5" %}
                     <tr>
                         <td>{{ history.changed_at|date:"Y-m-d H:i:s" }}</td>
                         <td>{{ history.field_name }}</td>
@@ -28,4 +29,8 @@
             </table>
         </div>
     </div>
-</div> 
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+    </div>
+</div>
+{% endif %} 
