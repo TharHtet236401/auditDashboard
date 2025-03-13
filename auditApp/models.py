@@ -20,3 +20,20 @@ class Transaction(models.Model):
 
     def __str__(self):
         return f"{self.merchant} - {self.amount} - {self.status}"
+
+    def get_history(self):
+        return self.history.all().select_related('changed_by').order_by('-changed_at')
+
+class TransactionHistory(models.Model):
+    transaction = models.ForeignKey('Transaction', on_delete=models.CASCADE, related_name='history')
+    changed_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    changed_at = models.DateTimeField(auto_now_add=True)
+    field_name = models.CharField(max_length=100)
+    old_value = models.CharField(max_length=255, null=True)
+    new_value = models.CharField(max_length=255, null=True)
+
+    class Meta:
+        ordering = ['-changed_at']
+
+    def __str__(self):
+        return f"{self.field_name} changed from {self.old_value} to {self.new_value}"

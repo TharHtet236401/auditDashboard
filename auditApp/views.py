@@ -2,10 +2,11 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.core.paginator import Paginator
 from .models import Transaction
 from .forms import TransactionForm
+from .signals import set_current_user
 
 # Create your views here.
 def login_view(request):
@@ -66,17 +67,19 @@ def logout_view(request):
 @login_required
 def transaction_detail(request, pk):
     try:
-        transaction = get_object_or_404(Transaction, pk=pk)
-        return render(request, 'partials/transaction_detail.html', {
+        transaction = Transaction.objects.get(pk=pk)
+        return render(request, 'transaction_detail.html', {
             'transaction': transaction
         })
     except Exception as e:
-        messages.error(request, str(e))
-        return redirect('home')
+        return JsonResponse({'error': str(e)}, status=400)
 
 @login_required
 def update_status(request, pk):
     try:
+        # Set current user for history tracking
+        set_current_user(request.user)
+        
         if request.method != 'POST':
             return HttpResponse('Method not allowed', status=405)
             
@@ -87,10 +90,7 @@ def update_status(request, pk):
             return messages.error(request, 'Invalid status')
             
         transaction.status = new_status
-        if new_status == 'Approved':
-            transaction.approved_by = request.user
-        else:
-            transaction.approved_by = None
+        transaction.approved_by = request.user
         transaction.save()
         
         # Get current page from request
@@ -109,6 +109,9 @@ def update_status(request, pk):
 @login_required
 def update_flag(request, pk):
     try:
+        # Set current user for history tracking
+        set_current_user(request.user)
+        
         if request.method != 'POST':
             return HttpResponse('Method not allowed', status=405)
             

@@ -1,0 +1,31 @@
+<div class="modal-content">
+    <!-- ... existing transaction details ... -->
+    
+    <div class="modal-body">
+        <h5 class="mb-3">Change History</h5>
+        <div class="table-responsive">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Field</th>
+                        <th>Old Value</th>
+                        <th>New Value</th>
+                        <th>Changed By</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for history in transaction.get_history %}
+                    <tr>
+                        <td>{{ history.changed_at|date:"Y-m-d H:i:s" }}</td>
+                        <td>{{ history.field_name }}</td>
+                        <td>{{ history.old_value }}</td>
+                        <td>{{ history.new_value }}</td>
+                        <td>{{ history.changed_by.username }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div> 
