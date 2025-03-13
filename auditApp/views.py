@@ -72,7 +72,8 @@ def transaction_detail(request, pk):
             'transaction': transaction
         })
     except Exception as e:
-        return JsonResponse({'error': str(e)}, status=400)
+        messages.error(request, str(e))
+        return redirect('home')
 
 @login_required
 def update_status(request, pk):
@@ -104,7 +105,8 @@ def update_status(request, pk):
         return render(request, 'partials/transaction.html', {'transactions': transactions})
         
     except Exception as e:
-        return HttpResponse(str(e), status=500)
+        messages.error(request, str(e))
+        return redirect('home')
 
 @login_required
 def update_flag(request, pk):
@@ -132,7 +134,8 @@ def update_flag(request, pk):
         return render(request, 'partials/transaction.html', {'transactions': transactions})
         
     except Exception as e:
-        return HttpResponse(str(e), status=500)
+        messages.error(request, str(e))
+        return redirect('home')
 
 @login_required
 def add_transaction(request):
@@ -194,4 +197,5 @@ def all_transaction_history(request):
             })
         
     except Exception as e:
-        return HttpResponse(str(e), status=500)
+        messages.error(request, str(e))
+        return redirect('home')
