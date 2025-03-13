@@ -152,27 +152,27 @@ def add_transaction(request):
         return render(request, 'partials/transaction_form.html', {'form': form})
  
 
-@login_required
-def transaction_history(request, pk):
-    try:
-        transaction = get_object_or_404(Transaction, pk=pk)
-        history = transaction.get_history()
+# @login_required
+# # def transaction_history(request, pk):
+# #     try:
+# #         transaction = get_object_or_404(Transaction, pk=pk)
+# #         history = transaction.get_history()
         
-        # If it's an HTMX request, return just the history content
-        if request.headers.get('HX-Request'):
-            return render(request, 'partials/transaction_history.html', {
-                'transaction': transaction,
-                'history': history
-            })
+# #         # If it's an HTMX request, return just the history content
+# #         if request.headers.get('HX-Request'):
+# #             return render(request, 'partials/transaction_history.html', {
+# #                 'transaction': transaction,
+# #                 'history': history
+# #             })
         
-        # For direct URL access, return the full page
-        return render(request, 'transaction_history.html', {
-            'transaction': transaction,
-            'history': history
-        })
+# #         # For direct URL access, return the full page
+# #         return render(request, 'transaction_history.html', {
+# #             'transaction': transaction,
+# #             'history': history
+# #         })
         
-    except Exception as e:
-        return HttpResponse(str(e), status=500)
+# #     except Exception as e:
+# #         return HttpResponse(str(e), status=500)
 
 @login_required
 def all_transaction_history(request):

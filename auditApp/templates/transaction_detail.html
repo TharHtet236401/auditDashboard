@@ -3,6 +3,7 @@
     <!-- ... existing transaction details ... -->
     
     <div class="modal-body">
+        <!-- <h1>{{ transaction.get_history|length }}</h1> -->
         <h5 class="mb-3">Change History</h5>
         <div class="table-responsive">
             <table class="table table-sm">
@@ -25,6 +26,15 @@
                         <td>{{ history.changed_by.username }}</td>
                     </tr>
                     {% endfor %}
+                    {% if transaction.get_history|length == 0 %}
+                   
+                        <td colspan="5" class="text-center">
+                            <strong>No history for this transaction</strong>
+                        </td>
+                     
+                   
+                    {% endif %}
+                    
                 </tbody>
             </table>
         </div>
@@ -33,4 +43,5 @@
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
     </div>
 </div>
+{% else %}
 {% endif %} 
