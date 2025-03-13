@@ -150,9 +150,7 @@ def add_transaction(request):
     # Check if it's an HTMX request
     if request.headers.get('HX-Request'):
         return render(request, 'partials/transaction_form.html', {'form': form})
-    else:
-        # For direct URL access, use the full template
-        return render(request, 'add_transaction.html', {'form': form})
+ 
 
 @login_required
 def transaction_history(request, pk):
