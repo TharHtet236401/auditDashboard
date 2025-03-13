@@ -195,10 +195,5 @@ def all_transaction_history(request):
                 'history': history_entries
             })
         
-        # For direct URL access, return the full page
-        return render(request, 'all_history.html', {
-            'history': history_entries
-        })
-        
     except Exception as e:
         return HttpResponse(str(e), status=500)
