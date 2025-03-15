@@ -53,6 +53,17 @@ def home(request):
     try:
         transactions_list = Transaction.objects.all().order_by('-timestamp')
         
+        # Apply filters if they exist
+        status_filter = request.GET.get('status')
+        flag_filter = request.GET.get('flag')
+        
+        if status_filter and status_filter != 'All':
+            transactions_list = transactions_list.filter(status=status_filter)
+            
+        if flag_filter:
+            is_flagged = flag_filter == 'Flagged'
+            transactions_list = transactions_list.filter(isFlagged=is_flagged)
+        
         total_count = transactions_list.count()
         if total_count == 0:
             messages.info(request, 'No transactions in database. Please run python manage.py generate_fake_transactions to create some test data.')
@@ -210,6 +221,30 @@ def all_transaction_history(request):
                 'history': history_entries
             })
         
+    except Exception as e:
+        messages.error(request, str(e))
+        return redirect('home')
+
+@login_required
+def filter_transactions(request):
+    try:
+        status = request.GET.get('status', 'All')
+        flag = request.GET.get('flag', 'All')
+        
+        transactions_list = Transaction.objects.all().order_by('-timestamp')
+        
+        if status != 'All':
+            transactions_list = transactions_list.filter(status=status)
+            
+        if flag != 'All':
+            is_flagged = flag == 'Flagged'
+            transactions_list = transactions_list.filter(isFlagged=is_flagged)
+        
+        paginator = Paginator(transactions_list, 10)
+        page = request.GET.get('page', 1)
+        transactions = paginator.get_page(page)
+        
+        return render(request, 'partials/transaction.html', {'transactions': transactions})
     except Exception as e:
         messages.error(request, str(e))
         return redirect('home')

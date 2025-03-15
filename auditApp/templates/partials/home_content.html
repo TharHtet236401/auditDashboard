@@ -15,10 +15,32 @@
             </button>
         </div>
         <div class="col-auto">
+            <div class="btn-group me-2" role="group">
+                <select class="form-select status-filter" 
+                        hx-get="{% url 'filter_transactions' %}"
+                        hx-target="#main-content"
+                        hx-trigger="change"
+                        hx-include=".flag-filter"
+                        name="status">
+                    <option value="All">All Status</option>
+                    <option value="Approved">Approved</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Rejected">Rejected</option>
+                </select>
+            </div>
+            <div class="btn-group me-2" role="group">
+                <select class="form-select flag-filter"
+                        hx-get="{% url 'filter_transactions' %}"
+                        hx-target="#main-content"
+                        hx-trigger="change"
+                        hx-include=".status-filter"
+                        name="flag">
+                    <option value="All">All Flags</option>
+                    <option value="Flagged">Flagged</option>
+                    <option value="Clear">Clear</option>
+                </select>
+            </div>
             <div class="btn-group" role="group">
-                <button type="button" class="btn btn-outline-primary">
-                    <i class="fas fa-filter me-1"></i>Filter
-                </button>
                 <button type="button" class="btn btn-outline-primary">
                     <i class="fas fa-sort me-1"></i>Sort
                 </button>
