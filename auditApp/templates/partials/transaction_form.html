@@ -11,7 +11,7 @@
             <div class="col-md-8">
                 <div class="card shadow-sm">
                     <div class="card-body">
-                        <form method="post" action="{% url 'add_transaction' %}" class="needs-validation" novalidate>
+                        <form method="post" action="{% url 'add_transaction' %}" class="needs-validation" novalidate onsubmit="return validateForm()">
                             {% csrf_token %}
                             <div class="mb-3">
                                 <label for="merchant" class="form-label">
@@ -26,9 +26,9 @@
                                 <label for="amount" class="form-label">
                                     <i class="fas fa-dollar-sign me-2"></i>Amount
                                 </label>
-                                <input type="number" class="form-control" id="amount" name="amount" placeholder="Enter amount" required>
+                                <input type="number" class="form-control" id="amount" name="amount" placeholder="Enter amount" min="0.01" max="1000000" step="0.01" required>
                                 <div class="invalid-feedback">
-                                    Please provide a valid amount.
+                                    Please provide a valid amount between $0.01 and $1,000,000.
                                 </div>
                             </div>
                             <div class="d-grid mb-3">
@@ -48,6 +48,21 @@
         </div>
     </div>
 </div>
+
+<script>
+function validateForm() {
+    const amount = parseFloat(document.getElementById('amount').value);
+    if (amount <= 0) {
+        alert('Amount must be greater than 0');
+        return false;
+    }
+    if (amount > 1000000) {
+        alert('Amount cannot exceed $1,000,000');
+        return false;
+    }
+    return true;
+}
+</script>
 
 
 
