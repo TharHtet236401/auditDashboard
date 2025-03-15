@@ -7,6 +7,7 @@ from django.core.paginator import Paginator
 from .models import Transaction, TransactionHistory
 from .forms import TransactionForm
 from .signals import set_current_user
+from .forms import UserRegistrationForm
 
 # Create your views here.
 def login_view(request):
@@ -33,7 +34,20 @@ def login_view(request):
     
     return render(request, 'login.html')
 
+def register_view(request):
+    if request.method == 'POST':
+        form = UserRegistrationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Registration successful. Please login.')
+            return redirect('login')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = UserRegistrationForm()
 
+    return render(request, 'register.html', {'form': form})
+            
 @login_required
 def home(request):
     try:
