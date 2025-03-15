@@ -10,8 +10,6 @@ urlpatterns = [
     path('transaction/<int:pk>/update-status/', views.update_status, name='update_status'),
     path('transaction/<int:pk>/update-flag/', views.update_flag, name='update_flag'),
     path('add-transaction/', views.add_transaction, name='add_transaction'),
-    path('filter-transactions/', views.filter_transactions, name='filter_transactions'),
-    # path('transaction/<int:pk>/history/', views.transaction_history, name='transaction_history'),
     path('all-history/', views.all_transaction_history, name='all_history'),
 ]
 

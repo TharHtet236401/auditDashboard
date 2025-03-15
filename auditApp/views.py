@@ -60,12 +60,12 @@ def home(request):
         if status_filter and status_filter != 'All':
             transactions_list = transactions_list.filter(status=status_filter)
             
-        if flag_filter:
+        if flag_filter and flag_filter != 'All':
             is_flagged = flag_filter == 'Flagged'
             transactions_list = transactions_list.filter(isFlagged=is_flagged)
         
         total_count = transactions_list.count()
-        if total_count == 0:
+        if total_count == 0 and not (status_filter or flag_filter):
             messages.info(request, 'No transactions in database. Please run python manage.py generate_fake_transactions to create some test data.')
         
         paginator = Paginator(transactions_list, 10)
@@ -73,11 +73,11 @@ def home(request):
         transactions = paginator.get_page(page)
         
         if request.headers.get('HX-Request'):
-            # Check if the target is transaction-container
-            if 'transaction-container' in request.headers.get('HX-Target', ''):
-                return render(request, 'partials/home_content.html', {'transactions': transactions})
-            # For other HTMX requests (like pagination)
-            return render(request, 'partials/transaction.html', {'transactions': transactions})
+            # For main content updates (including filters)
+            if 'main-content' in request.headers.get('HX-Target', ''):
+                return render(request, 'partials/transaction.html', {'transactions': transactions})
+            # For full container updates
+            return render(request, 'partials/home_content.html', {'transactions': transactions})
         
         return render(request, 'home.html', {'transactions': transactions})
     except Exception as e:
