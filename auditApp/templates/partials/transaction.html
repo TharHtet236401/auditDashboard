@@ -65,7 +65,7 @@
                 {% if transactions.has_previous %}
                 <li class="page-item">
                     <button class="page-link" 
-                            hx-get="{% url 'home' %}?page={{ transactions.previous_page_number }}"
+                            hx-get="{% url 'home' %}?page={{ transactions.previous_page_number }}&status={{ request.GET.status|default:'' }}&flag={{ request.GET.flag|default:'' }}"
                             hx-target="#main-content">
                         <i class="fas fa-chevron-left"></i>
                     </button>
@@ -80,7 +80,7 @@
                     {% elif num > transactions.number|add:'-3' and num < transactions.number|add:'3' %}
                     <li class="page-item">
                         <button class="page-link"
-                                hx-get="{% url 'home' %}?page={{ num }}"
+                                hx-get="{% url 'home' %}?page={{ num }}&status={{ request.GET.status|default:'' }}&flag={{ request.GET.flag|default:'' }}"
                                 hx-target="#main-content">
                             {{ num }}
                         </button>
@@ -91,7 +91,7 @@
                 {% if transactions.has_next %}
                 <li class="page-item">
                     <button class="page-link"
-                            hx-get="{% url 'home' %}?page={{ transactions.next_page_number }}"
+                            hx-get="{% url 'home' %}?page={{ transactions.next_page_number }}&status={{ request.GET.status|default:'' }}&flag={{ request.GET.flag|default:'' }}"
                             hx-target="#main-content">
                         <i class="fas fa-chevron-right"></i>
                     </button>
