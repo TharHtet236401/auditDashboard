@@ -118,7 +118,13 @@ def update_status(request, pk):
             return messages.error(request, 'Invalid status')
             
         transaction.status = new_status
-        transaction.approved_by = request.user
+        if new_status == 'Approved':
+            transaction.approved_by = request.user
+        elif new_status == 'Pending':
+            transaction.approved_by = None
+        elif new_status == 'Rejected':
+            transaction.approved_by = None
+        
         transaction.save()
         
         # Get current page from request
