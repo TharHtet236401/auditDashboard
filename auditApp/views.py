@@ -9,6 +9,8 @@ from .forms import TransactionForm
 from .signals import set_current_user
 from .forms import UserRegistrationForm
 from django.db.models import Q
+from django.core.exceptions import ObjectDoesNotExist
+from django.db import DatabaseError
 
 # Create your views here.
 def login_view(request):
@@ -98,8 +100,13 @@ def transaction_detail(request, pk):
         return render(request, 'partials/transaction_detail.html', {
             'transaction': transaction
         })
-    except Exception as e:
-        messages.error(request, str(e))
+    except ObjectDoesNotExist:
+        messages.error(request, 'Transaction not found.')
+        return redirect('home')
+    except DatabaseError as e:
+        messages.error(request, 'A database error occurred.')
+        # Log the error for debugging
+        print(f"Database error: {e}")
         return redirect('home')
 
 @login_required
