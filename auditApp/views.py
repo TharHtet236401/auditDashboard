@@ -179,43 +179,30 @@ def update_flag(request, pk):
 
 @login_required
 def add_transaction(request):
-    if request.method == 'POST':
-        form = TransactionForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Transaction added successfully!')
-            return redirect('home')
+    try:
+        if request.method == 'POST':
+            form = TransactionForm(request.POST)
+            if form.is_valid():
+                form.save()
+                return redirect('home')
+            else:
+                messages.error(request, 'Please correct the errors below.')
+                # If it's an HTMX request, return the form partial
+                if request.headers.get('HX-Request'):
+                    return render(request, 'partials/transaction_form.html', {'form': form})
+                # If it's a regular request, return the full page
+                return render(request, 'partials/transaction_form.html', {'form': form})
         else:
-            messages.error(request, 'Please correct the errors below.')
-    else:
-        form = TransactionForm()
+            form = TransactionForm()
 
-    # Check if it's an HTMX request
-    if request.headers.get('HX-Request'):
+        # For GET requests
+        if request.headers.get('HX-Request'):
+            return render(request, 'partials/transaction_form.html', {'form': form})
         return render(request, 'partials/transaction_form.html', {'form': form})
- 
-
-# @login_required
-# # def transaction_history(request, pk):
-# #     try:
-# #         transaction = get_object_or_404(Transaction, pk=pk)
-# #         history = transaction.get_history()
         
-# #         # If it's an HTMX request, return just the history content
-# #         if request.headers.get('HX-Request'):
-# #             return render(request, 'partials/transaction_history.html', {
-# #                 'transaction': transaction,
-# #                 'history': history
-# #             })
-        
-# #         # For direct URL access, return the full page
-# #         return render(request, 'transaction_history.html', {
-# #             'transaction': transaction,
-# #             'history': history
-# #         })
-        
-# #     except Exception as e:
-# #         return HttpResponse(str(e), status=500)
+    except Exception as e:
+        messages.error(request, str(e))
+        return redirect('home')
 
 @login_required
 def all_transaction_history(request):
