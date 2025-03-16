@@ -54,13 +54,13 @@ def home(request):
         transactions_list = Transaction.objects.all().order_by('-timestamp')
         
         # Apply filters if they exist
-        status_filter = request.GET.get('status')
-        flag_filter = request.GET.get('flag')
+        status_filter = request.GET.get('status', '')
+        flag_filter = request.GET.get('flag', '')
         
-        if status_filter and status_filter != 'All':
+        if status_filter:  # Only filter if a specific status is selected
             transactions_list = transactions_list.filter(status=status_filter)
             
-        if flag_filter and flag_filter != 'All':
+        if flag_filter:  # Only filter if a specific flag is selected
             is_flagged = flag_filter == 'Flagged'
             transactions_list = transactions_list.filter(isFlagged=is_flagged)
         

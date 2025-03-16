@@ -22,7 +22,7 @@
                         hx-trigger="change"
                         hx-include=".flag-filter"
                         name="status">
-                    <option value="All" {% if request.GET.status == 'All' or not request.GET.status %}selected{% endif %}>All Status</option>
+                    <option value="">Select Status</option>
                     <option value="Approved" {% if request.GET.status == 'Approved' %}selected{% endif %}>Approved</option>
                     <option value="Pending" {% if request.GET.status == 'Pending' %}selected{% endif %}>Pending</option>
                     <option value="Rejected" {% if request.GET.status == 'Rejected' %}selected{% endif %}>Rejected</option>
@@ -35,7 +35,7 @@
                         hx-trigger="change"
                         hx-include=".status-filter"
                         name="flag">
-                    <option value="All" {% if request.GET.flag == 'All' or not request.GET.flag %}selected{% endif %}>All Flags</option>
+                    <option value="">Select Flag</option>
                     <option value="Flagged" {% if request.GET.flag == 'Flagged' %}selected{% endif %}>Flagged</option>
                     <option value="Clear" {% if request.GET.flag == 'Clear' %}selected{% endif %}>Clear</option>
                 </select>
