@@ -8,6 +8,7 @@ from .models import Transaction, TransactionHistory
 from .forms import TransactionForm
 from .signals import set_current_user
 from .forms import UserRegistrationForm
+from django.db.models import Q
 
 # Create your views here.
 def login_view(request):
@@ -57,17 +58,17 @@ def home(request):
         status_filter = request.GET.get('status', '')
         flag_filter = request.GET.get('flag', '')
         
+        filters = Q()
         if status_filter:  # Only filter if a specific status is selected
-            transactions_list = transactions_list.filter(status=status_filter)
+            filters &= Q(status=status_filter)
             
         if flag_filter:  # Only filter if a specific flag is selected
-            is_flagged = flag_filter == 'Flagged'
-            transactions_list = transactions_list.filter(isFlagged=is_flagged)
+            is_flagged = flag_filter == 'Flagged' # it will get true if the flag is Flagged
+            filters &= Q(isFlagged=is_flagged)
         
-        total_count = transactions_list.count()
-        if total_count == 0 and not (status_filter or flag_filter):
-            messages.info(request, 'No transactions in database. Please run python manage.py generate_fake_transactions to create some test data.')
-        
+        if filters:
+            transactions_list = transactions_list.filter(filters)
+
         paginator = Paginator(transactions_list, 10)
         page = request.GET.get('page', 1)
         transactions = paginator.get_page(page)
@@ -82,7 +83,8 @@ def home(request):
         return render(request, 'home.html', {'transactions': transactions})
     except Exception as e:
         messages.error(request, str(e))
-        return redirect('login')
+        # Instead of redirecting, render the home template with an empty transaction list
+        return render(request, 'home.html', {'transactions': []})
 
 def logout_view(request):
     logout(request)
