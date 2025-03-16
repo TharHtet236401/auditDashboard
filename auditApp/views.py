@@ -223,6 +223,11 @@ def all_transaction_history(request):
                 'history': history_entries
             })
         
+        # For non-HTMX requests, return the full page
+        return render(request, 'partials/all_history.html', {
+            'history': history_entries
+        })
+        
     except Exception as e:
         messages.error(request, str(e))
         return redirect('home')
