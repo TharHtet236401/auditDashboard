@@ -6,15 +6,16 @@
         <!-- <h1>{{ transaction.get_history|length }}</h1> -->
          <div class="d-flex justify-content-between align-items-center">
             <h5 class="mb-3 ">Transaction Details</h5>
-            <div>
+            <div class="mb-3">
                <!-- <button class="btn btn-warning mb-3">Edit</button> -->
-               <button hx-post="{% url 'delete_transaction' transaction.id %}"
+               <!-- <button hx-post="{% url 'delete_transaction' transaction.id %}"
                         hx-confirm="Are you sure you want to delete this transaction?"
                         hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
                         hx-target="#transaction-container"
                         hx-swap="innerHTML"
                         data-bs-dismiss="modal"
-                        class="btn btn-danger mb-3">Delete</button>
+                        class="btn btn-danger mb-3">Delete</button> -->
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
          </div>
         <table class="table table-bordered">
@@ -83,7 +84,14 @@
         
     </div>
     <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        
+        <button hx-post="{% url 'delete_transaction' transaction.id %}"
+                        hx-confirm="Are you sure you want to delete this transaction?"
+                        hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                        hx-target="#transaction-container"
+                        hx-swap="innerHTML"
+                        data-bs-dismiss="modal"
+                        class="btn btn-danger mb-3">Delete</button>
     </div>
 </div>
 {% else %}
