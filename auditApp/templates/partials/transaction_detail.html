@@ -4,7 +4,13 @@
     
     <div class="modal-body">
         <!-- <h1>{{ transaction.get_history|length }}</h1> -->
-        <h5 class="mb-3 ">Transaction Details</h5>
+         <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-3 ">Transaction Details</h5>
+            <div>
+                <button class="btn btn-warning mb-3">Edit</button>
+                <button class="btn btn-danger mb-3">Delete</button>
+            </div>
+         </div>
         <table class="table table-bordered">
             <tbody>
                 <tr>
@@ -33,7 +39,7 @@
                 </tr>
                 <tr>
                     <td>Transaction Made</td>
-                    <td>{{ transaction.timestamp }}</td>
+                    <td>{{ transaction.timestamp|date:"m-d-Y H:i:s"}}</td>
                 </tr>
             </tbody>
             
@@ -53,7 +59,7 @@
             <tbody>
                 {% for history in transaction.get_history|slice:":5" %}
                 <tr>
-                    <td>{{ history.changed_at|date:"Y-m-d H:i:s" }}</td>
+                    <td>{{ history.changed_at|date:"m-d-Y H:i:s" }}</td>
                     <td>{{ history.field_name }}</td>
                     <td>{{ history.old_value }}</td>
                     <td>{{ history.new_value }}</td>
