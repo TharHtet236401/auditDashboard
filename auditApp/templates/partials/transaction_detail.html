@@ -1,43 +1,74 @@
 {% if transaction %}
-<div class="modal-content">
+<div class="modal-content ">
     <!-- ... existing transaction details ... -->
     
     <div class="modal-body">
         <!-- <h1>{{ transaction.get_history|length }}</h1> -->
-        <h5 class="mb-3">Change History</h5>
-        <div class="table-responsive">
-            <table class="table table-sm">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Field</th>
-                        <th>Old Value</th>
-                        <th>New Value</th>
-                        <th>Changed By</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for history in transaction.get_history|slice:":5" %}
-                    <tr>
-                        <td>{{ history.changed_at|date:"Y-m-d H:i:s" }}</td>
-                        <td>{{ history.field_name }}</td>
-                        <td>{{ history.old_value }}</td>
-                        <td>{{ history.new_value }}</td>
-                        <td>{{ history.changed_by.username }}</td>
-                    </tr>
-                    {% endfor %}
-                    {% if transaction.get_history|length == 0 %}
-                   
-                        <td colspan="5" class="text-center">
-                            <strong>No history for this transaction</strong>
-                        </td>
-                     
-                   
-                    {% endif %}
-                    
-                </tbody>
-            </table>
-        </div>
+        <h5 class="mb-3 ">Transaction Details</h5>
+        <table class="table table-bordered">
+            <tbody>
+                <tr>
+                    <td>Transaction ID</td>
+                    <td>{{ transaction.id }}</td>
+                </tr>
+                <tr>
+                    <td>Merchant</td>
+                    <td>{{ transaction.merchant }}</td>
+                </tr>
+                <tr>
+                    <td>Amount</td>
+                    <td>{{ transaction.amount }}</td>
+                </tr>
+                <tr>
+                    <td>Transaction Status</td>
+                    <td>{{ transaction.status }}</td>
+                </tr>
+                <tr>
+                    <td>Transaction Flagged</td>
+                    <td>{{ transaction.isFlagged }}</td>
+                </tr>
+                <tr>
+                    <td>Transaction Approved By</td>
+                    <td>{{ transaction.approved_by.username|default:"Not Approved" }}</td>
+                </tr>
+                <tr>
+                    <td>Transaction Made</td>
+                    <td>{{ transaction.timestamp }}</td>
+                </tr>
+            </tbody>
+            
+        </table>
+
+        <h5 class="mb-3 mt-3 ">Transaction History</h5>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Field</th>
+                    <th>Old Value</th>
+                    <th>New Value</th>
+                    <th>Changed By</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for history in transaction.get_history|slice:":5" %}
+                <tr>
+                    <td>{{ history.changed_at|date:"Y-m-d H:i:s" }}</td>
+                    <td>{{ history.field_name }}</td>
+                    <td>{{ history.old_value }}</td>
+                    <td>{{ history.new_value }}</td>
+                    <td>{{ history.changed_by.username }}</td>
+                </tr>
+                {% endfor %}
+                {% if transaction.get_history|length == 0 %}
+               
+                    <td colspan="5" class="text-center">
+                        <strong>No history for this transaction</strong>
+                    </td>
+                {% endif %}
+            </tbody>
+        </table>
+        
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
