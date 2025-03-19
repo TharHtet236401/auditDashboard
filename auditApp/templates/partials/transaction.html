@@ -155,73 +155,105 @@ function updateSelectedCount() {
     document.getElementById('selected-count').textContent = count;
 }
 
-// Long press detection
-document.querySelectorAll('.transaction-row').forEach(row => {
-    row.addEventListener('mousedown', () => {
-        longPressTimer = setTimeout(() => {
-            if (!selectionMode) {
-                toggleSelectionMode(true);
+// Function to initialize long press detection
+function initializeLongPress() {
+    document.querySelectorAll('.transaction-row').forEach(row => {
+        row.addEventListener('mousedown', () => {
+            longPressTimer = setTimeout(() => {
+                if (!selectionMode) {
+                    toggleSelectionMode(true);
+                }
+            }, LONG_PRESS_DURATION);
+        });
+
+        row.addEventListener('mouseup', () => {
+            clearTimeout(longPressTimer);
+        });
+
+        row.addEventListener('mouseleave', () => {
+            clearTimeout(longPressTimer);
+        });
+    });
+}
+
+// Initialize event listeners
+function initializeEventListeners() {
+    // Cancel selection mode
+    const cancelButton = document.getElementById('cancel-selection');
+    if (cancelButton) {
+        cancelButton.addEventListener('click', () => {
+            toggleSelectionMode(false);
+        });
+    }
+
+    // Select all functionality
+    const selectAllCheckbox = document.getElementById('select-all');
+    if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener('change', function() {
+            document.querySelectorAll('.transaction-checkbox').forEach(cb => {
+                cb.checked = this.checked;
+            });
+            updateSelectedCount();
+        });
+    }
+
+    // Individual checkbox change
+    document.addEventListener('change', function(e) {
+        if (e.target.classList.contains('transaction-checkbox')) {
+            updateSelectedCount();
+        }
+    });
+
+    // Delete selected transactions
+    const deleteButton = document.getElementById('delete-selected');
+    if (deleteButton) {
+        deleteButton.addEventListener('click', function() {
+            const selectedIds = Array.from(document.querySelectorAll('.transaction-checkbox:checked'))
+                .map(cb => cb.value);
+            
+            if (selectedIds.length === 0) {
+                alert('Please select at least one transaction to delete.');
+                return;
             }
-        }, LONG_PRESS_DURATION);
-    });
 
-    row.addEventListener('mouseup', () => {
-        clearTimeout(longPressTimer);
-    });
+            if (confirm('Are you sure you want to delete the selected transactions?')) {
+                const formData = new FormData();
+                selectedIds.forEach(id => formData.append('transaction_ids', id));
 
-    row.addEventListener('mouseleave', () => {
-        clearTimeout(longPressTimer);
-    });
-});
-
-// Cancel selection mode
-document.getElementById('cancel-selection').addEventListener('click', () => {
-    toggleSelectionMode(false);
-});
-
-// Select all functionality
-document.getElementById('select-all').addEventListener('change', function() {
-    document.querySelectorAll('.transaction-checkbox').forEach(cb => {
-        cb.checked = this.checked;
-    });
-    updateSelectedCount();
-});
-
-// Individual checkbox change
-document.addEventListener('change', function(e) {
-    if (e.target.classList.contains('transaction-checkbox')) {
-        updateSelectedCount();
-    }
-});
-
-// Delete selected transactions
-document.getElementById('delete-selected').addEventListener('click', function() {
-    const selectedIds = Array.from(document.querySelectorAll('.transaction-checkbox:checked'))
-        .map(cb => cb.value);
-    
-    if (selectedIds.length === 0) {
-        alert('Please select at least one transaction to delete.');
-        return;
-    }
-
-    if (confirm('Are you sure you want to delete the selected transactions?')) {
-        const formData = new FormData();
-        selectedIds.forEach(id => formData.append('transaction_ids', id));
-
-        fetch("{% url 'multiple_delete_transaction' %}", {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': '{{ csrf_token }}'
-            },
-            body: formData
-        })
-        .then(response => {
-            if (response.ok) {
-                location.reload();
-            } else {
-                alert('An error occurred while deleting transactions.');
+                fetch("{% url 'multiple_delete_transaction' %}", {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: formData
+                })
+                .then(response => {
+                    if (response.ok) {
+                        location.reload();
+                    } else {
+                        alert('An error occurred while deleting transactions.');
+                    }
+                });
             }
         });
+    }
+}
+
+// Initialize everything when the content loads
+function initialize() {
+    initializeLongPress();
+    initializeEventListeners();
+}
+
+// Call initialize when the page loads
+initialize();
+
+// Re-initialize when HTMX content is swapped
+document.addEventListener('htmx:afterSwap', function(event) {
+    if (event.detail.target.id === 'main-content') {
+        initialize();
+        // Reset selection mode when content is swapped
+        toggleSelectionMode(false);
     }
 });
 </script>
