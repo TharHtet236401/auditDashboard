@@ -12,5 +12,6 @@ urlpatterns = [
     path('add-transaction/', views.add_transaction, name='add_transaction'),
     path('all-history/', views.all_transaction_history, name='all_history'),
     path('delete-transaction/<int:pk>/', views.delete_transaction, name='delete_transaction'),
+    path('delete-transactions/', views.multiple_delete_transaction, name='multiple_delete_transaction'),
 ]
 

@@ -1,8 +1,22 @@
 {% if transactions.object_list %}
 <div class="transaction-wrapper">
+    <!-- Add delete button (initially hidden) -->
+    <div id="selection-actions" class="mb-3" style="display: none;">
+        <button id="cancel-selection" class="btn btn-secondary me-2">
+            <i class="fas fa-times me-1"></i>Cancel
+        </button>
+        <button id="delete-selected" class="btn btn-danger">
+            <i class="fas fa-trash me-1"></i>Delete Selected (<span id="selected-count">0</span>)
+        </button>
+    </div>
+
     <table class="transaction-table">
         <thead>
             <tr>
+                <!-- Add checkbox column -->
+                <th class="checkbox-column" style="display: none;">
+                    <input type="checkbox" id="select-all" class="form-check-input">
+                </th>
                 <th>Merchant</th>
                 <th>Amount</th>
                 <th>Status</th>
@@ -13,7 +27,11 @@
         </thead>
         <tbody>
             {% for transaction in transactions %}
-            <tr>
+            <tr class="transaction-row" data-transaction-id="{{ transaction.id }}">
+                <!-- Add checkbox cell -->
+                <td class="checkbox-column" style="display: none;">
+                    <input type="checkbox" class="form-check-input transaction-checkbox" value="{{ transaction.id }}">
+                </td>
                 <td>
                     <span class="merchant-cell">{{ transaction.merchant }}</span>
                 </td>
@@ -105,6 +123,108 @@
     </div>
     {% endif %}
 </div>
+
+<!-- Add JavaScript for selection functionality -->
+<script>
+let selectionMode = false;
+let longPressTimer;
+const LONG_PRESS_DURATION = 500; // milliseconds
+
+// Function to toggle selection mode
+function toggleSelectionMode(enable) {
+    selectionMode = enable;
+    const checkboxColumns = document.querySelectorAll('.checkbox-column');
+    const selectionActions = document.getElementById('selection-actions');
+    
+    checkboxColumns.forEach(col => {
+        col.style.display = enable ? '' : 'none';
+    });
+    selectionActions.style.display = enable ? '' : 'none';
+    
+    if (!enable) {
+        // Clear all checkboxes when disabling selection mode
+        document.querySelectorAll('.transaction-checkbox').forEach(cb => cb.checked = false);
+        document.getElementById('select-all').checked = false;
+        updateSelectedCount();
+    }
+}
+
+// Function to update selected count
+function updateSelectedCount() {
+    const count = document.querySelectorAll('.transaction-checkbox:checked').length;
+    document.getElementById('selected-count').textContent = count;
+}
+
+// Long press detection
+document.querySelectorAll('.transaction-row').forEach(row => {
+    row.addEventListener('mousedown', () => {
+        longPressTimer = setTimeout(() => {
+            if (!selectionMode) {
+                toggleSelectionMode(true);
+            }
+        }, LONG_PRESS_DURATION);
+    });
+
+    row.addEventListener('mouseup', () => {
+        clearTimeout(longPressTimer);
+    });
+
+    row.addEventListener('mouseleave', () => {
+        clearTimeout(longPressTimer);
+    });
+});
+
+// Cancel selection mode
+document.getElementById('cancel-selection').addEventListener('click', () => {
+    toggleSelectionMode(false);
+});
+
+// Select all functionality
+document.getElementById('select-all').addEventListener('change', function() {
+    document.querySelectorAll('.transaction-checkbox').forEach(cb => {
+        cb.checked = this.checked;
+    });
+    updateSelectedCount();
+});
+
+// Individual checkbox change
+document.addEventListener('change', function(e) {
+    if (e.target.classList.contains('transaction-checkbox')) {
+        updateSelectedCount();
+    }
+});
+
+// Delete selected transactions
+document.getElementById('delete-selected').addEventListener('click', function() {
+    const selectedIds = Array.from(document.querySelectorAll('.transaction-checkbox:checked'))
+        .map(cb => cb.value);
+    
+    if (selectedIds.length === 0) {
+        alert('Please select at least one transaction to delete.');
+        return;
+    }
+
+    if (confirm('Are you sure you want to delete the selected transactions?')) {
+        const formData = new FormData();
+        selectedIds.forEach(id => formData.append('transaction_ids', id));
+
+        fetch("{% url 'multiple_delete_transaction' %}", {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: formData
+        })
+        .then(response => {
+            if (response.ok) {
+                location.reload();
+            } else {
+                alert('An error occurred while deleting transactions.');
+            }
+        });
+    }
+});
+</script>
 {% else %}
 <div class="alert alert-info" role="alert">
     No transactions found

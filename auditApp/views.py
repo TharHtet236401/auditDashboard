@@ -265,3 +265,14 @@ def delete_transaction(request, pk):
     except Exception as e:
         messages.error(request, str(e))
         return redirect('home')
+    
+def multiple_delete_transaction(request):
+    try:
+        transaction_ids = request.POST.getlist('transaction_ids')
+        transactions = Transaction.objects.filter(id__in=transaction_ids)
+        transactions.delete()
+        return redirect('home')
+    except Exception as e:
+        messages.error(request, str(e))
+        return redirect('home')
+
