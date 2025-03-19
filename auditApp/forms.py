@@ -17,7 +17,7 @@ class TransactionForm(forms.ModelForm):
     def clean_merchant(self):
         merchant = self.cleaned_data.get('merchant')
         if not merchant:
-            raise forms.ValidationError("Merchant is required")
+            raise forms.ValidationError("Merchant is required ok?")
         return merchant
 
 class UserRegistrationForm(UserCreationForm):

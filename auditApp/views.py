@@ -269,10 +269,23 @@ def delete_transaction(request, pk):
 def multiple_delete_transaction(request):
     try:
         transaction_ids = request.POST.getlist('transaction_ids')
-        transactions = Transaction.objects.filter(id__in=transaction_ids)
-        transactions.delete()
-        return redirect('home')
-    except Exception as e:
-        messages.error(request, str(e))
-        return redirect('home')
 
+        if not transaction_ids:
+            messages.warning(request, "No transactions selected for deletion.")
+            return redirect('home')
+
+        transactions = Transaction.objects.filter(id__in=transaction_ids)
+
+        if not transactions.exists():
+            messages.warning(request, "No matching transactions found.")
+            return redirect('home')
+
+        transactions.delete()
+        messages.success(request, "Selected transactions have been deleted successfully.")
+        
+    except DatabaseError as db_err:
+        messages.error(request, f"Database error occurred: {db_err}")
+    except Exception as e:
+        messages.error(request, f"An unexpected error occurred: {e}")
+
+    return redirect('home')
