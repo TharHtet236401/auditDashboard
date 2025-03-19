@@ -256,4 +256,12 @@ def filter_transactions(request):
         messages.error(request, str(e))
         return redirect('home')
 
-
+def delete_transaction(request, pk):
+    try:
+        transaction = Transaction.objects.get(pk=pk)
+        print(transaction)
+        transaction.delete()
+        return redirect('home')
+    except Exception as e:
+        messages.error(request, str(e))
+        return redirect('home')
