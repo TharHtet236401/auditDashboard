@@ -11,6 +11,7 @@ from .forms import UserRegistrationForm
 from django.db.models import Q
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import DatabaseError
+from django.db.models import Count
 
 # Create your views here.
 def login_view(request):
@@ -292,4 +293,7 @@ def multiple_delete_transaction(request):
 
 
 def analytics_view(request):
-    return render(request, 'partials/analytics.html')
+    status_counts = Transaction.objects.values('status').annotate(count=Count('status'))
+    status_data = {item['status']: item['count'] for item in status_counts}
+    print(status_data)
+    return render(request, 'partials/analytics.html', {'status_data': status_data})
