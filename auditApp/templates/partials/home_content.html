@@ -43,10 +43,13 @@
             </div>
             <div class="btn-group" role="group">
                 <button type="button" class="btn btn-outline-primary">
-                    <i class="fas fa-sort me-1"></i>Sort
+                    <i class="fas fa-sort me-1"></i>Export
                 </button>
-                <button type="button" class="btn btn-outline-primary">
-                    <i class="fas fa-download me-1"></i>Export
+                <button hx-get="{% url 'analytics' %}"
+                        hx-target="#transaction-container"
+                        hx-swap="innerHTML"
+                        class="btn btn-outline-primary">
+                    <i class="fas fa-chart-line me-1"></i>Analytics
                 </button>
                 <button hx-get="{% url 'all_history' %}"
                         hx-target="#transaction-container"

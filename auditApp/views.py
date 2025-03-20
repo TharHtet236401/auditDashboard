@@ -289,3 +289,7 @@ def multiple_delete_transaction(request):
         messages.error(request, f"An unexpected error occurred: {e}")
 
     return redirect('home')
+
+
+def analytics_view(request):
+    return render(request, 'partials/analytics.html')

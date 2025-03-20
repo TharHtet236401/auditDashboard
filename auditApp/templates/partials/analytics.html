@@ -1,0 +1,20 @@
+<div class="row mb-4">
+    
+    <div class="col">
+        <h2 class="page-header">
+            <i class="fas fa-chart-line me-2"></i>Analytics
+        </h2>
+        <p class="text-muted mb-0">
+            Viewing analytics across the system
+        </p>
+        
+    </div>
+    <div class="col-auto">
+        <a hx-get="{% url 'home' %}"
+            hx-target="#transaction-container"
+            hx-swap="innerHTML"
+            class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Transactions
+        </a>
+    </div>
+</div>

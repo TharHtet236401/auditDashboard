@@ -13,5 +13,6 @@ urlpatterns = [
     path('all-history/', views.all_transaction_history, name='all_history'),
     path('delete-transaction/<int:pk>/', views.delete_transaction, name='delete_transaction'),
     path('delete-transactions/', views.multiple_delete_transaction, name='multiple_delete_transaction'),
+    path('analytics/', views.analytics_view, name='analytics'),
 ]
 
