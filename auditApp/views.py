@@ -12,6 +12,8 @@ from django.db.models import Q
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import DatabaseError
 from django.db.models import Count
+from django.core.serializers.json import DjangoJSONEncoder
+import json
 
 # Create your views here.
 def login_view(request):
@@ -293,7 +295,34 @@ def multiple_delete_transaction(request):
 
 
 def analytics_view(request):
-    status_counts = Transaction.objects.values('status').annotate(count=Count('status'))
-    status_data = {item['status']: item['count'] for item in status_counts}
-    print(status_data)
-    return render(request, 'partials/analytics.html', {'status_data': status_data})
+    try:
+        # Get status counts
+        status_counts = Transaction.objects.values('status').annotate(count=Count('status'))
+        
+        # Convert to dictionary format and ensure all statuses are represented
+        status_data = {
+            'Approved': 0,
+            'Pending': 0,
+            'Rejected': 0
+        }
+        
+        # Update with actual counts
+        for item in status_counts:
+            if item['status'] in status_data:
+                status_data[item['status']] = item['count']
+        
+        # Debug print
+        print("Status data before JSON:", status_data)
+        
+        # Convert to JSON string
+        json_data = json.dumps(status_data)
+        print("JSON data:", json_data)  # Debug print
+        
+        return render(request, 'partials/analytics.html', {
+            'status_data': json_data
+        })
+        
+    except Exception as e:
+        print("Error in analytics_view:", str(e))  # Debug print
+        messages.error(request, f"Error generating analytics: {str(e)}")
+        return redirect('home')

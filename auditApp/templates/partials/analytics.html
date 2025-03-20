@@ -1,13 +1,11 @@
 <div class="row mb-4">
-    
     <div class="col">
         <h2 class="page-header">
             <i class="fas fa-chart-line me-2"></i>Analytics
         </h2>
         <p class="text-muted mb-0">
-            Viewing analytics across the system
+            Transaction Status Distribution
         </p>
-        
     </div>
     <div class="col-auto">
         <a hx-get="{% url 'home' %}"
@@ -18,4 +16,171 @@
         </a>
     </div>
 </div>
-{{ status_data }}
+{{ status_data  }}
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <canvas id="statusPieChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    canvas {
+        min-height: 400px;
+    }
+    .card {
+        margin-top: 2rem;
+    }
+</style>
+
+<!-- Load Chart.js from CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+<script>
+    // Debug: Log the raw data
+    console.log(typeof '{{status_data}}')
+    console.log('Raw status_data:', '{{ status_data }}');
+    
+    // Parse the JSON data
+    let djangoData;
+    try {
+        djangoData = JSON.parse('{{ status_data|escapejs }}');
+        console.log('Parsed Django Data:', djangoData);
+    } catch (error) {
+        console.error('Error parsing JSON:', error);
+        document.getElementById('statusPieChart').parentElement.innerHTML = 
+            '<div class="alert alert-danger">Error parsing data: ' + error.message + '</div>';
+    }
+    
+    // Function to initialize the chart
+    function initializeChart() {
+        if (!djangoData) {
+            console.error('No data available for chart');
+            return;
+        }
+
+        try {
+            // Get the canvas element
+            const ctx = document.getElementById('statusPieChart');
+            if (!ctx) {
+                console.error('Canvas element not found');
+                return;
+            }
+
+            // Prepare data for the pie chart
+            const labels = Object.keys(djangoData);
+            const values = Object.values(djangoData);
+            
+            console.log('Chart data:', { labels, values });
+            
+            // Define colors for different statuses
+            const backgroundColors = {
+                'Approved': 'rgba(34, 197, 94, 0.8)',  // Green
+                'Pending': 'rgba(234, 179, 8, 0.8)',   // Yellow
+                'Rejected': 'rgba(239, 68, 68, 0.8)'    // Red
+            };
+            
+            const borderColors = {
+                'Approved': 'rgb(22, 163, 74)',
+                'Pending': 'rgb(202, 138, 4)',
+                'Rejected': 'rgb(220, 38, 38)'
+            };
+
+            // Create arrays for colors based on labels
+            const backgroundColor = labels.map(label => backgroundColors[label] || '#6B7280');
+            const borderColor = labels.map(label => borderColors[label] || '#374151');
+
+            // Destroy existing chart if it exists
+            if (window.myPieChart) {
+                window.myPieChart.destroy();
+            }
+
+            // Create the pie chart
+            window.myPieChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: values,
+                        backgroundColor: backgroundColor,
+                        borderColor: borderColor,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                font: {
+                                    size: 14
+                                }
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Transaction Status Distribution',
+                            font: {
+                                size: 16,
+                                weight: 'bold'
+                            },
+                            padding: {
+                                top: 10,
+                                bottom: 30
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((value / total) * 100).toFixed(1);
+                                    return `${label}: ${value} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Error creating chart:', error);
+            const canvas = document.getElementById('statusPieChart');
+            if (canvas) {
+                canvas.parentElement.innerHTML = 
+                    '<div class="alert alert-danger">Failed to create chart: ' + error.message + '</div>';
+            }
+        }
+    }
+
+    // Initialize when Chart.js is loaded
+    function checkChartAndInitialize() {
+        if (typeof Chart === 'undefined') {
+            console.log('Waiting for Chart.js to load...');
+            setTimeout(checkChartAndInitialize, 100);
+            return;
+        }
+        console.log('Chart.js loaded, initializing chart...');
+        initializeChart();
+    }
+
+    // Start checking for Chart.js
+    checkChartAndInitialize();
+
+    // Handle HTMX content swaps
+    document.body.addEventListener('htmx:afterSwap', function(event) {
+        if (event.detail.target.querySelector('#statusPieChart')) {
+            console.log('Content swapped, reinitializing chart...');
+            checkChartAndInitialize();
+        }
+    });
+</script>
+  
+
+  
