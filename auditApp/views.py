@@ -138,15 +138,15 @@ def update_status(request, pk):
         transaction.save()
         
         # Get current page from request
-        page = request.GET.get('page', 1)
+        # page = request.GET.get('page', 1)
         
-        # Return the updated transaction list with pagination
-        transactions_list = Transaction.objects.all().order_by('-timestamp')
-        paginator = Paginator(transactions_list, 10)
-        transactions = paginator.get_page(page)
+        # # Return the updated transaction list with pagination
+        # transactions_list = Transaction.objects.all().order_by('-timestamp')
+        # paginator = Paginator(transactions_list, 10)
+        # transactions = paginator.get_page(page)
         
-        return render(request, 'partials/transaction.html', {'transactions': transactions})
-        
+        # return render(request, 'partials/transaction.html', {'transactions': transactions})
+        return redirect('home')
     except Exception as e:
         messages.error(request, str(e))
         return redirect('home')
@@ -167,15 +167,15 @@ def update_flag(request, pk):
         transaction.save()
         
         # Get current page from request
-        page = request.GET.get('page', 1)
+        # page = request.GET.get('page', 1)
         
-        # Return the updated transaction list with pagination
-        transactions_list = Transaction.objects.all().order_by('-timestamp')
-        paginator = Paginator(transactions_list, 10)
-        transactions = paginator.get_page(page)
+        # # Return the updated transaction list with pagination
+        # transactions_list = Transaction.objects.all().order_by('-timestamp')
+        # paginator = Paginator(transactions_list, 10)
+        # transactions = paginator.get_page(page)
         
-        return render(request, 'partials/transaction.html', {'transactions': transactions})
-        
+        # return render(request, 'partials/transaction.html', {'transactions': transactions})
+        return redirect('home')
     except Exception as e:
         messages.error(request, str(e))
         return redirect('home')
