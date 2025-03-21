@@ -134,7 +134,7 @@ def update_status(request, pk):
             transaction.approved_by = None
         elif new_status == 'Rejected':
             transaction.approved_by = None
-        
+            
         transaction.save()
         
         # Get current page from request
@@ -296,10 +296,10 @@ def multiple_delete_transaction(request):
 
 def analytics_view(request):
     try:
-        # Get status counts
+        # Get fresh status counts
         status_counts = Transaction.objects.values('status').annotate(count=Count('status'))
         
-        # Convert to dictionary format and ensure all statuses are represented
+        # Initialize with zero counts
         status_data = {
             'Approved': 0,
             'Pending': 0,
@@ -308,21 +308,23 @@ def analytics_view(request):
         
         # Update with actual counts
         for item in status_counts:
-            if item['status'] in status_data:
-                status_data[item['status']] = item['count']
+            status = item['status']
+            if status in status_data:
+                status_data[status] = item['count']
+        
+        # Convert to JSON with DjangoJSONEncoder and mark as safe
+        json_data = json.dumps(status_data, cls=DjangoJSONEncoder)
         
         # Debug print
-        print("Status data before JSON:", status_data)
+        print("JSON data being sent:", json_data)
         
-        # Convert to JSON string
-        json_data = json.dumps(status_data)
-        print("JSON data:", json_data)  # Debug print
-        
+        # Render template with the fresh data
         return render(request, 'partials/analytics.html', {
-            'status_data': json_data
+            'status_data': json_data,
+            'raw_data': status_data  # Also pass the raw data for debugging
         })
         
     except Exception as e:
-        print("Error in analytics_view:", str(e))  # Debug print
+        print(f"Analytics error: {str(e)}")
         messages.error(request, f"Error generating analytics: {str(e)}")
         return redirect('home')
