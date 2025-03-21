@@ -16,11 +16,12 @@
         </div>
         <div>
         <div class="col-auto">
-            <input type="text" class="form-control" 
+            <input type="text" class="form-control search-input" 
                    placeholder="Search Transactions" 
                    hx-get="{% url 'home' %}" 
                    hx-target="#main-content" 
-                   hx-trigger="keyup changed delay:500ms" 
+                   hx-trigger="keyup changed delay:500ms"
+                   hx-include=".status-filter,.flag-filter"
                    name="search" 
                    value="{{ request.GET.search|default:'' }}">
         </div>
@@ -31,9 +32,8 @@
                         hx-get="{% url 'home' %}"
                         hx-target="#main-content"
                         hx-trigger="change"
-                        hx-include=".flag-filter"
+                        hx-include=".flag-filter,.search-input"
                         name="status">
-                    <!-- <option value="">Select Status</option> -->
                     <option value="" {% if request.GET.status == '' or not request.GET.status %}selected{% endif %}>All Status</option>
                     <option value="Approved" {% if request.GET.status == 'Approved' %}selected{% endif %}>Approved</option>
                     <option value="Pending" {% if request.GET.status == 'Pending' %}selected{% endif %}>Pending</option>
@@ -45,7 +45,7 @@
                         hx-get="{% url 'home' %}"
                         hx-target="#main-content"
                         hx-trigger="change"
-                        hx-include=".status-filter"
+                        hx-include=".status-filter,.search-input"
                         name="flag">
                     <option value="" {% if request.GET.flag == '' or not request.GET.flag %}selected{% endif %}>All Flags</option>
                     <option value="Flagged" {% if request.GET.flag == 'Flagged' %}selected{% endif %}>Flagged</option>
