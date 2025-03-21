@@ -59,6 +59,10 @@ def home(request):
     try:
         transactions_list = Transaction.objects.all().order_by('-timestamp')
         
+        search_query = request.GET.get('search', '')
+        if search_query:
+            transactions_list = transactions_list.filter(merchant__icontains=search_query)
+        
         # Apply filters if they exist
         status_filter = request.GET.get('status', '')
         flag_filter = request.GET.get('flag', '')
