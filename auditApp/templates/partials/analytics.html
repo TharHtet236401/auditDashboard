@@ -19,12 +19,19 @@
 </div>
 
 <!-- First Row: Status and Flag Charts -->
-<div class="row">
+<div class="row g-4">
     <!-- Status Chart -->
     <div class="col-md-6">
-        <div class="card shadow-sm">
+        <div class="card analytics-card shadow-sm h-100">
             <div class="card-body chart-container">
-                <h5 class="card-title text-center mb-4">Transaction Status Distribution</h5>
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-chart-pie text-primary me-2"></i>Status Distribution
+                    </h5>
+                    <span class="badge bg-light text-dark">
+                        <i class="fas fa-clock me-1"></i>Real-time
+                    </span>
+                </div>
                 <canvas id="statusPieChart"></canvas>
                 <script id="status-data" type="application/json">
                     {{ status_data|safe }}
@@ -32,11 +39,19 @@
             </div>
         </div>
     </div>
+    
     <!-- Flag Chart -->
     <div class="col-md-6">
-        <div class="card shadow-sm">
+        <div class="card analytics-card shadow-sm h-100">
             <div class="card-body chart-container">
-                <h5 class="card-title text-center mb-4">Transaction Flag Distribution</h5>
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-flag text-primary me-2"></i>Flag Distribution
+                    </h5>
+                    <span class="badge bg-light text-dark">
+                        <i class="fas fa-clock me-1"></i>Real-time
+                    </span>
+                </div>
                 <canvas id="flagPieChart"></canvas>
                 <script id="flag-data" type="application/json">
                     {{ flag_data|safe }}
@@ -49,9 +64,16 @@
 <!-- Second Row: Amount Distribution -->
 <div class="row mt-4">
     <div class="col-12">
-        <div class="card shadow-sm">
+        <div class="card analytics-card shadow-sm">
             <div class="card-body chart-container">
-                <h5 class="card-title text-center mb-4">Transaction Amount Distribution</h5>
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-dollar-sign text-primary me-2"></i>Amount Distribution
+                    </h5>
+                    <span class="badge bg-light text-dark">
+                        <i class="fas fa-clock me-1"></i>Real-time
+                    </span>
+                </div>
                 <canvas id="amountBarChart"></canvas>
                 <script id="amount-data" type="application/json">
                     {{ amount_data|safe }}
@@ -62,16 +84,41 @@
 </div>
 
 <style>
+    .analytics-card {
+        background: #ffffff;
+        border: none;
+        border-radius: 12px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .analytics-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important;
+    }
+
     .chart-container {
         position: relative;
         height: 400px;
         width: 100%;
+        padding: 1rem;
     }
+
+    .card-title {
+        color: #2c3e50;
+        font-weight: 600;
+    }
+
     canvas {
         max-height: 400px;
     }
-    .card {
-        margin-top: 2rem;
+
+    .badge {
+        padding: 0.5rem 1rem;
+        font-weight: 500;
+    }
+
+    .text-primary {
+        color: #3b82f6 !important;
     }
 </style>
 
@@ -106,29 +153,39 @@
     // Function to create a pie chart
     function createPieChart(ctx, data, colors) {
         return new Chart(ctx, {
-            type: 'pie',
+            type: 'doughnut',
             data: {
                 labels: Object.keys(data),
                 datasets: [{
                     data: Object.values(data),
                     backgroundColor: Object.keys(data).map(key => colors[key].bg),
                     borderColor: Object.keys(data).map(key => colors[key].border),
-                    borderWidth: 1
+                    borderWidth: 2,
+                    hoverOffset: 15
                 }]
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: true,
-                aspectRatio: 2,
+                maintainAspectRatio: false,
+                cutout: '60%',
                 plugins: {
                     legend: {
                         position: 'bottom',
                         labels: {
                             padding: 20,
-                            font: { size: 14 }
+                            font: { size: 14 },
+                            usePointStyle: true,
+                            pointStyle: 'circle'
                         }
                     },
                     tooltip: {
+                        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                        titleColor: '#2c3e50',
+                        bodyColor: '#2c3e50',
+                        bodyFont: { size: 14 },
+                        borderColor: '#e2e8f0',
+                        borderWidth: 1,
+                        padding: 12,
                         callbacks: {
                             label: function(context) {
                                 const label = context.label || '';
@@ -146,40 +203,46 @@
 
     // Function to create a bar chart
     function createBarChart(ctx, data) {
-        // Get the 2D rendering context
+        // Filter out ranges with zero transactions
+        const filteredData = Object.fromEntries(
+            Object.entries(data).filter(([_, value]) => value > 0)
+        );
+
         const context2D = ctx.getContext('2d');
         const gradient = context2D.createLinearGradient(0, 0, 0, 400);
-        gradient.addColorStop(0, 'rgba(59, 130, 246, 0.8)');   // Blue
+        gradient.addColorStop(0, 'rgba(59, 130, 246, 0.8)');
         gradient.addColorStop(1, 'rgba(59, 130, 246, 0.2)');
-
-        // Define static colors as fallback
-        const staticColor = 'rgba(59, 130, 246, 0.6)';
-        const borderColor = 'rgb(59, 130, 246)';
 
         return new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: Object.keys(data),
+                labels: Object.keys(filteredData),
                 datasets: [{
                     label: 'Number of Transactions',
-                    data: Object.values(data),
-                    backgroundColor: gradient || staticColor,
-                    borderColor: borderColor,
-                    borderWidth: 1,
-                    borderRadius: 5,
+                    data: Object.values(filteredData),
+                    backgroundColor: gradient,
+                    borderColor: 'rgb(59, 130, 246)',
+                    borderWidth: 2,
+                    borderRadius: 8,
                     barThickness: 'flex',
                     maxBarThickness: 50
                 }]
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: true,
-                aspectRatio: 2,
+                maintainAspectRatio: false,
                 plugins: {
                     legend: {
                         display: false
                     },
                     tooltip: {
+                        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                        titleColor: '#2c3e50',
+                        bodyColor: '#2c3e50',
+                        bodyFont: { size: 14 },
+                        borderColor: '#e2e8f0',
+                        borderWidth: 1,
+                        padding: 12,
                         callbacks: {
                             label: function(context) {
                                 const value = context.raw || 0;
@@ -193,8 +256,15 @@
                 scales: {
                     y: {
                         beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)',
+                            drawBorder: false
+                        },
                         ticks: {
-                            precision: 0
+                            precision: 0,
+                            font: {
+                                size: 12
+                            }
                         },
                         title: {
                             display: true,
@@ -202,21 +272,29 @@
                             font: {
                                 size: 14,
                                 weight: 'bold'
-                            }
+                            },
+                            padding: 15
                         }
                     },
                     x: {
+                        grid: {
+                            display: false
+                        },
                         title: {
                             display: true,
                             text: 'Amount Range',
                             font: {
                                 size: 14,
                                 weight: 'bold'
-                            }
+                            },
+                            padding: 15
                         },
                         ticks: {
                             maxRotation: 45,
-                            minRotation: 45
+                            minRotation: 45,
+                            font: {
+                                size: 12
+                            }
                         }
                     }
                 }
@@ -229,7 +307,6 @@
         try {
             await loadChartJs();
 
-            // Color configurations
             const statusColors = {
                 'Approved': { bg: 'rgba(34, 197, 94, 0.8)', border: 'rgb(22, 163, 74)' },
                 'Pending': { bg: 'rgba(234, 179, 8, 0.8)', border: 'rgb(202, 138, 4)' },

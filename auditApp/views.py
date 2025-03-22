@@ -301,13 +301,13 @@ def multiple_delete_transaction(request):
 
 def analytics_view(request):
     try:
-        # Get status counts
+        # Get status counts directly from the database
         status_counts = Transaction.objects.values('status').annotate(count=Count('status'))
-        
-        # Get flag counts
+
+        # Get flag counts directly from the database
         flag_counts = Transaction.objects.values('isFlagged').annotate(count=Count('isFlagged'))
-        
-        # Get amount ranges
+
+        # Get amount ranges directly from the database
         amount_ranges = Transaction.objects.annotate(
             range_category=Case(
                 When(amount__lt=100, then=1),
@@ -318,19 +318,10 @@ def analytics_view(request):
                 output_field=IntegerField(),
             )
         ).values('range_category').annotate(count=Count('id')).order_by('range_category')
-        
+        print(type(status_counts))
         # Initialize data dictionaries
-        status_data = {
-            'Approved': 0,
-            'Pending': 0,
-            'Rejected': 0
-        }
-        
-        flag_data = {
-            'Flagged': 0,
-            'Clear': 0
-        }
-        
+        status_data = {status: 0 for status in ['Approved', 'Pending', 'Rejected']}
+        flag_data = {'Flagged': 0, 'Clear': 0}
         amount_data = {
             'Under $100': 0,
             '$100 - $499': 0,
@@ -338,17 +329,14 @@ def analytics_view(request):
             '$1,000 - $4,999': 0,
             '$5,000 and above': 0
         }
-        
+
         # Update with actual counts
         for item in status_counts:
-            status = item['status']
-            if status in status_data:
-                status_data[status] = item['count']
-        
+            status_data[item['status']] = item['count']
+
         for item in flag_counts:
-            is_flagged = item['isFlagged']
-            flag_data['Flagged' if is_flagged else 'Clear'] = item['count']
-        
+            flag_data['Flagged' if item['isFlagged'] else 'Clear'] = item['count']
+
         range_mapping = {
             1: 'Under $100',
             2: '$100 - $499',
@@ -356,19 +344,20 @@ def analytics_view(request):
             4: '$1,000 - $4,999',
             5: '$5,000 and above'
         }
-        
+
         for item in amount_ranges:
             range_key = range_mapping.get(item['range_category'])
             if range_key:
                 amount_data[range_key] = item['count']
-        
+
         # Convert to JSON and render
         return render(request, 'partials/analytics.html', {
             'status_data': json.dumps(status_data, cls=DjangoJSONEncoder),
             'flag_data': json.dumps(flag_data, cls=DjangoJSONEncoder),
-            'amount_data': json.dumps(amount_data, cls=DjangoJSONEncoder)
+            'amount_data': json.dumps(amount_data, cls=DjangoJSONEncoder),
+            'status_counts': status_counts,
         })
-        
+
     except Exception as e:
         messages.error(request, f"Error generating analytics: {str(e)}")
         return redirect('home')
