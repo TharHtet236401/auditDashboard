@@ -14,6 +14,7 @@ from django.db import DatabaseError
 from django.db.models import Count
 from django.core.serializers.json import DjangoJSONEncoder
 import json
+from django.db.models import Case, When, IntegerField, F
 
 # Create your views here.
 def login_view(request):
@@ -306,6 +307,18 @@ def analytics_view(request):
         # Get flag counts
         flag_counts = Transaction.objects.values('isFlagged').annotate(count=Count('isFlagged'))
         
+        # Get amount ranges
+        amount_ranges = Transaction.objects.annotate(
+            range_category=Case(
+                When(amount__lt=100, then=1),
+                When(amount__lt=500, then=2),
+                When(amount__lt=1000, then=3),
+                When(amount__lt=5000, then=4),
+                When(amount__gte=5000, then=5),
+                output_field=IntegerField(),
+            )
+        ).values('range_category').annotate(count=Count('id')).order_by('range_category')
+        
         # Initialize with zero counts for status
         status_data = {
             'Approved': 0,
@@ -317,6 +330,15 @@ def analytics_view(request):
         flag_data = {
             'Flagged': 0,
             'Clear': 0
+        }
+        
+        # Initialize with zero counts for amount ranges
+        amount_data = {
+            'Under $100': 0,
+            '$100 - $499': 0,
+            '$500 - $999': 0,
+            '$1,000 - $4,999': 0,
+            '$5,000 and above': 0
         }
         
         # Update with actual status counts
@@ -333,20 +355,38 @@ def analytics_view(request):
             else:
                 flag_data['Clear'] = item['count']
         
-        # Convert both to JSON
+        # Update with actual amount range counts
+        range_mapping = {
+            1: 'Under $100',
+            2: '$100 - $499',
+            3: '$500 - $999',
+            4: '$1,000 - $4,999',
+            5: '$5,000 and above'
+        }
+        
+        for item in amount_ranges:
+            range_key = range_mapping.get(item['range_category'])
+            if range_key:
+                amount_data[range_key] = item['count']
+        
+        # Convert all to JSON
         status_json = json.dumps(status_data, cls=DjangoJSONEncoder)
         flag_json = json.dumps(flag_data, cls=DjangoJSONEncoder)
+        amount_json = json.dumps(amount_data, cls=DjangoJSONEncoder)
         
         # Debug prints
         print("Status data:", status_json)
         print("Flag data:", flag_json)
+        print("Amount data:", amount_json)
         
-        # Render template with both datasets
+        # Render template with all datasets
         return render(request, 'partials/analytics.html', {
             'status_data': status_json,
             'flag_data': flag_json,
+            'amount_data': amount_json,
             'raw_status_data': status_data,
-            'raw_flag_data': flag_data
+            'raw_flag_data': flag_data,
+            'raw_amount_data': amount_data
         })
         
     except Exception as e:
