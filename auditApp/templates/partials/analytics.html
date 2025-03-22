@@ -5,7 +5,7 @@
             <i class="fas fa-chart-line me-2"></i>Analytics
         </h2>
         <p class="text-muted mb-0">
-            Transaction Status Distribution
+            Transaction Status and Flag Distribution
         </p>
     </div>
     <div class="col-auto">
@@ -19,13 +19,26 @@
 </div>
 
 <div class="row">
-    <div class="col-md-8 mx-auto">
+    <!-- Status Chart -->
+    <div class="col-md-6">
         <div class="card shadow-sm">
             <div class="card-body chart-container">
+                <h5 class="card-title text-center mb-4">Transaction Status Distribution</h5>
                 <canvas id="statusPieChart"></canvas>
-                <!-- Data container -->
-                <script id="chart-data" type="application/json">
+                <script id="status-data" type="application/json">
                     {{ status_data|safe }}
+                </script>
+            </div>
+        </div>
+    </div>
+    <!-- Flag Chart -->
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-body chart-container">
+                <h5 class="card-title text-center mb-4">Transaction Flag Distribution</h5>
+                <canvas id="flagPieChart"></canvas>
+                <script id="flag-data" type="application/json">
+                    {{ flag_data|safe }}
                 </script>
             </div>
         </div>
@@ -46,7 +59,6 @@
     }
 </style>
 
-<!-- Load Chart.js from CDN with onload handler -->
 <script>
     // Function to load Chart.js dynamically
     function loadChartJs() {
@@ -65,8 +77,8 @@
     }
 
     // Function to get chart data
-    function getChartData() {
-        const dataScript = document.getElementById('chart-data');
+    function getChartData(elementId) {
+        const dataScript = document.getElementById(elementId);
         try {
             return JSON.parse(dataScript.textContent);
         } catch (error) {
@@ -75,52 +87,16 @@
         }
     }
 
-    // Function to create the chart
-    function createAnalyticsChart() {
-        // Get the canvas element
-        const ctx = document.getElementById('statusPieChart');
-        if (!ctx) {
-            console.error('Canvas element not found');
-            return;
-        }
-
-        // Get the chart data
-        const chartData = getChartData();
-        if (!chartData) {
-            console.error('No valid chart data available');
-            return;
-        }
-
-        console.log('Creating chart with data:', chartData);
-
-        // Define colors for different statuses
-        const backgroundColors = {
-            'Approved': 'rgba(34, 197, 94, 0.8)',  // Green
-            'Pending': 'rgba(234, 179, 8, 0.8)',   // Yellow
-            'Rejected': 'rgba(239, 68, 68, 0.8)'   // Red
-        };
-        
-        const borderColors = {
-            'Approved': 'rgb(22, 163, 74)',
-            'Pending': 'rgb(202, 138, 4)',
-            'Rejected': 'rgb(220, 38, 38)'
-        };
-
-        // Prepare chart data
-        const labels = Object.keys(chartData);
-        const values = Object.values(chartData);
-        const backgroundColor = labels.map(label => backgroundColors[label] || '#6B7280');
-        const borderColor = labels.map(label => borderColors[label] || '#374151');
-
-        // Create the chart
+    // Function to create a pie chart
+    function createPieChart(ctx, data, title, colors) {
         return new Chart(ctx, {
             type: 'pie',
             data: {
-                labels: labels,
+                labels: Object.keys(data),
                 datasets: [{
-                    data: values,
-                    backgroundColor: backgroundColor,
-                    borderColor: borderColor,
+                    data: Object.values(data),
+                    backgroundColor: Object.keys(data).map(key => colors[key].bg),
+                    borderColor: Object.keys(data).map(key => colors[key].border),
                     borderWidth: 1
                 }]
             },
@@ -138,7 +114,7 @@
                     },
                     title: {
                         display: true,
-                        text: 'Transaction Status Distribution',
+                        text: title,
                         font: {
                             size: 16,
                             weight: 'bold'
@@ -164,42 +140,64 @@
         });
     }
 
-    // Function to handle chart initialization/reinitialization
-    async function initializeChart() {
+    // Function to initialize/reinitialize charts
+    async function initializeCharts() {
         try {
-            // Ensure Chart.js is loaded
             await loadChartJs();
-            
-            // Destroy existing chart if it exists
-            const existingChart = Chart.getChart('statusPieChart');
-            if (existingChart) {
-                existingChart.destroy();
+
+            // Color configurations
+            const statusColors = {
+                'Approved': { bg: 'rgba(34, 197, 94, 0.8)', border: 'rgb(22, 163, 74)' },
+                'Pending': { bg: 'rgba(234, 179, 8, 0.8)', border: 'rgb(202, 138, 4)' },
+                'Rejected': { bg: 'rgba(239, 68, 68, 0.8)', border: 'rgb(220, 38, 38)' }
+            };
+
+            const flagColors = {
+                'Flagged': { bg: 'rgba(239, 68, 68, 0.8)', border: 'rgb(220, 38, 38)' },
+                'Clear': { bg: 'rgba(34, 197, 94, 0.8)', border: 'rgb(22, 163, 74)' }
+            };
+
+            // Status Chart
+            const statusCtx = document.getElementById('statusPieChart');
+            const statusData = getChartData('status-data');
+            if (statusCtx && statusData) {
+                const existingStatusChart = Chart.getChart(statusCtx);
+                if (existingStatusChart) {
+                    existingStatusChart.destroy();
+                }
+                createPieChart(statusCtx, statusData, 'Transaction Status Distribution', statusColors);
             }
 
-            // Create new chart
-            createAnalyticsChart();
+            // Flag Chart
+            const flagCtx = document.getElementById('flagPieChart');
+            const flagData = getChartData('flag-data');
+            if (flagCtx && flagData) {
+                const existingFlagChart = Chart.getChart(flagCtx);
+                if (existingFlagChart) {
+                    existingFlagChart.destroy();
+                }
+                createPieChart(flagCtx, flagData, 'Transaction Flag Distribution', flagColors);
+            }
         } catch (error) {
-            console.error('Error initializing chart:', error);
+            console.error('Error initializing charts:', error);
         }
     }
 
-    // Initialize chart when the content loads
-    document.addEventListener('htmx:afterOnLoad', initializeChart);
+    // Initialize charts when content loads
+    document.addEventListener('htmx:afterOnLoad', initializeCharts);
     document.addEventListener('htmx:afterSwap', function(event) {
-        if (event.detail.target.querySelector('#statusPieChart')) {
-            console.log('Content swapped, reinitializing chart...');
-            initializeChart();
+        if (event.detail.target.querySelector('#statusPieChart') || 
+            event.detail.target.querySelector('#flagPieChart')) {
+            console.log('Content swapped, reinitializing charts...');
+            initializeCharts();
         }
     });
 
     // Also initialize on regular page load
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initializeChart);
+        document.addEventListener('DOMContentLoaded', initializeCharts);
     } else {
-        initializeChart();
-        // setTimeout(() => {
-        //     alert("this is from anlytics.html")
-        // }, 3000);
+        initializeCharts();
     }
 </script>
   

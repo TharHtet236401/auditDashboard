@@ -300,32 +300,53 @@ def multiple_delete_transaction(request):
 
 def analytics_view(request):
     try:
-        # Get fresh status counts
+        # Get status counts
         status_counts = Transaction.objects.values('status').annotate(count=Count('status'))
         
-        # Initialize with zero counts
+        # Get flag counts
+        flag_counts = Transaction.objects.values('isFlagged').annotate(count=Count('isFlagged'))
+        
+        # Initialize with zero counts for status
         status_data = {
             'Approved': 0,
             'Pending': 0,
             'Rejected': 0
         }
         
-        # Update with actual counts
+        # Initialize with zero counts for flags
+        flag_data = {
+            'Flagged': 0,
+            'Clear': 0
+        }
+        
+        # Update with actual status counts
         for item in status_counts:
             status = item['status']
             if status in status_data:
                 status_data[status] = item['count']
         
-        # Convert to JSON with DjangoJSONEncoder and mark as safe
-        json_data = json.dumps(status_data, cls=DjangoJSONEncoder)
+        # Update with actual flag counts
+        for item in flag_counts:
+            is_flagged = item['isFlagged']
+            if is_flagged:
+                flag_data['Flagged'] = item['count']
+            else:
+                flag_data['Clear'] = item['count']
         
-        # Debug print
-        print("JSON data being sent:", json_data)
+        # Convert both to JSON
+        status_json = json.dumps(status_data, cls=DjangoJSONEncoder)
+        flag_json = json.dumps(flag_data, cls=DjangoJSONEncoder)
         
-        # Render template with the fresh data
+        # Debug prints
+        print("Status data:", status_json)
+        print("Flag data:", flag_json)
+        
+        # Render template with both datasets
         return render(request, 'partials/analytics.html', {
-            'status_data': json_data,
-            'raw_data': status_data  # Also pass the raw data for debugging
+            'status_data': status_json,
+            'flag_data': flag_json,
+            'raw_status_data': status_data,
+            'raw_flag_data': flag_data
         })
         
     except Exception as e:
