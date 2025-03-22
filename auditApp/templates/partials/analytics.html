@@ -5,7 +5,7 @@
             <i class="fas fa-chart-line me-2"></i>Analytics
         </h2>
         <p class="text-muted mb-0">
-            Transaction Status and Flag Distribution
+            Transaction Status, Flag, and Amount Distribution
         </p>
     </div>
     <div class="col-auto">
@@ -18,6 +18,7 @@
     </div>
 </div>
 
+<!-- First Row: Status and Flag Charts -->
 <div class="row">
     <!-- Status Chart -->
     <div class="col-md-6">
@@ -39,6 +40,21 @@
                 <canvas id="flagPieChart"></canvas>
                 <script id="flag-data" type="application/json">
                     {{ flag_data|safe }}
+                </script>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Second Row: Amount Distribution -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-body chart-container">
+                <h5 class="card-title text-center mb-4">Transaction Amount Distribution</h5>
+                <canvas id="amountBarChart"></canvas>
+                <script id="amount-data" type="application/json">
+                    {{ amount_data|safe }}
                 </script>
             </div>
         </div>
@@ -128,6 +144,86 @@
         });
     }
 
+    // Function to create a bar chart
+    function createBarChart(ctx, data) {
+        // Get the 2D rendering context
+        const context2D = ctx.getContext('2d');
+        const gradient = context2D.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(59, 130, 246, 0.8)');   // Blue
+        gradient.addColorStop(1, 'rgba(59, 130, 246, 0.2)');
+
+        // Define static colors as fallback
+        const staticColor = 'rgba(59, 130, 246, 0.6)';
+        const borderColor = 'rgb(59, 130, 246)';
+
+        return new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(data),
+                datasets: [{
+                    label: 'Number of Transactions',
+                    data: Object.values(data),
+                    backgroundColor: gradient || staticColor,
+                    borderColor: borderColor,
+                    borderWidth: 1,
+                    borderRadius: 5,
+                    barThickness: 'flex',
+                    maxBarThickness: 50
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                aspectRatio: 2,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const value = context.raw || 0;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((value / total) * 100).toFixed(1);
+                                return `${value} transactions (${percentage}%)`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        },
+                        title: {
+                            display: true,
+                            text: 'Number of Transactions',
+                            font: {
+                                size: 14,
+                                weight: 'bold'
+                            }
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Amount Range',
+                            font: {
+                                size: 14,
+                                weight: 'bold'
+                            }
+                        },
+                        ticks: {
+                            maxRotation: 45,
+                            minRotation: 45
+                        }
+                    }
+                }
+            }
+        });
+    }
+
     // Function to initialize/reinitialize charts
     async function initializeCharts() {
         try {
@@ -166,6 +262,17 @@
                 }
                 createPieChart(flagCtx, flagData, flagColors);
             }
+
+            // Amount Chart
+            const amountCtx = document.getElementById('amountBarChart');
+            const amountData = getChartData('amount-data');
+            if (amountCtx && amountData) {
+                const existingAmountChart = Chart.getChart(amountCtx);
+                if (existingAmountChart) {
+                    existingAmountChart.destroy();
+                }
+                createBarChart(amountCtx, amountData);
+            }
         } catch (error) {
             console.error('Error initializing charts:', error);
         }
@@ -175,7 +282,8 @@
     document.addEventListener('htmx:afterOnLoad', initializeCharts);
     document.addEventListener('htmx:afterSwap', function(event) {
         if (event.detail.target.querySelector('#statusPieChart') || 
-            event.detail.target.querySelector('#flagPieChart')) {
+            event.detail.target.querySelector('#flagPieChart') ||
+            event.detail.target.querySelector('#amountBarChart')) {
             console.log('Content swapped, reinitializing charts...');
             initializeCharts();
         }
