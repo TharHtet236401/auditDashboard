@@ -88,7 +88,7 @@
     }
 
     // Function to create a pie chart
-    function createPieChart(ctx, data, title, colors) {
+    function createPieChart(ctx, data, colors) {
         return new Chart(ctx, {
             type: 'pie',
             data: {
@@ -110,18 +110,6 @@
                         labels: {
                             padding: 20,
                             font: { size: 14 }
-                        }
-                    },
-                    title: {
-                        display: true,
-                        text: title,
-                        font: {
-                            size: 16,
-                            weight: 'bold'
-                        },
-                        padding: {
-                            top: 10,
-                            bottom: 30
                         }
                     },
                     tooltip: {
@@ -165,7 +153,7 @@
                 if (existingStatusChart) {
                     existingStatusChart.destroy();
                 }
-                createPieChart(statusCtx, statusData, 'Transaction Status Distribution', statusColors);
+                createPieChart(statusCtx, statusData, statusColors);
             }
 
             // Flag Chart
@@ -176,7 +164,7 @@
                 if (existingFlagChart) {
                     existingFlagChart.destroy();
                 }
-                createPieChart(flagCtx, flagData, 'Transaction Flag Distribution', flagColors);
+                createPieChart(flagCtx, flagData, flagColors);
             }
         } catch (error) {
             console.error('Error initializing charts:', error);
