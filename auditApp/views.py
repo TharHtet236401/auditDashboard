@@ -319,20 +319,18 @@ def analytics_view(request):
             )
         ).values('range_category').annotate(count=Count('id')).order_by('range_category')
         
-        # Initialize with zero counts for status
+        # Initialize data dictionaries
         status_data = {
             'Approved': 0,
             'Pending': 0,
             'Rejected': 0
         }
         
-        # Initialize with zero counts for flags
         flag_data = {
             'Flagged': 0,
             'Clear': 0
         }
         
-        # Initialize with zero counts for amount ranges
         amount_data = {
             'Under $100': 0,
             '$100 - $499': 0,
@@ -341,21 +339,16 @@ def analytics_view(request):
             '$5,000 and above': 0
         }
         
-        # Update with actual status counts
+        # Update with actual counts
         for item in status_counts:
             status = item['status']
             if status in status_data:
                 status_data[status] = item['count']
         
-        # Update with actual flag counts
         for item in flag_counts:
             is_flagged = item['isFlagged']
-            if is_flagged:
-                flag_data['Flagged'] = item['count']
-            else:
-                flag_data['Clear'] = item['count']
+            flag_data['Flagged' if is_flagged else 'Clear'] = item['count']
         
-        # Update with actual amount range counts
         range_mapping = {
             1: 'Under $100',
             2: '$100 - $499',
@@ -369,27 +362,13 @@ def analytics_view(request):
             if range_key:
                 amount_data[range_key] = item['count']
         
-        # Convert all to JSON
-        status_json = json.dumps(status_data, cls=DjangoJSONEncoder)
-        flag_json = json.dumps(flag_data, cls=DjangoJSONEncoder)
-        amount_json = json.dumps(amount_data, cls=DjangoJSONEncoder)
-        
-        # Debug prints
-        print("Status data:", status_json)
-        print("Flag data:", flag_json)
-        print("Amount data:", amount_json)
-        
-        # Render template with all datasets
+        # Convert to JSON and render
         return render(request, 'partials/analytics.html', {
-            'status_data': status_json,
-            'flag_data': flag_json,
-            'amount_data': amount_json,
-            'raw_status_data': status_data,
-            'raw_flag_data': flag_data,
-            'raw_amount_data': amount_data
+            'status_data': json.dumps(status_data, cls=DjangoJSONEncoder),
+            'flag_data': json.dumps(flag_data, cls=DjangoJSONEncoder),
+            'amount_data': json.dumps(amount_data, cls=DjangoJSONEncoder)
         })
         
     except Exception as e:
-        print(f"Analytics error: {str(e)}")
         messages.error(request, f"Error generating analytics: {str(e)}")
         return redirect('home')
