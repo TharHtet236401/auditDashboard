@@ -1,8 +1,17 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator
+import random
+import string
+
 
 # Create your models here.
+
+def get_unique_hex_id():
+    while True:
+        hex_id = ''.join(random.choices(string.hexdigits.upper(), k=6))
+        if not Transaction.objects.filter(id=hex_id).exists():
+            return hex_id
 
 class Transaction(models.Model):
     STATUS_CHOICES = [
@@ -10,7 +19,7 @@ class Transaction(models.Model):
         ('Pending', 'Pending'),
         ('Rejected', 'Rejected'),
     ]
-
+    id = models.CharField(primary_key=True, max_length=6, default=get_unique_hex_id, editable=False)
     amount = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)],null=False, blank=False)
     status = models.CharField(max_length=255, choices=STATUS_CHOICES, null=False, blank=False,default='Pending')
     timestamp = models.DateTimeField(auto_now_add=True)
