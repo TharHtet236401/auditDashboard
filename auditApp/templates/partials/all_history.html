@@ -1,3 +1,5 @@
+
+{% load tz %}
 {% if history %}
 <div class="row mb-4">
     
@@ -37,11 +39,11 @@
             <tr>
                 <td>
                     <span class="text-muted">
-                        {{ entry.changed_at|date:"M d, Y" }}
+                        {{ entry.changed_at|localtime|date:"M d, Y" }}
                     </span>
                     <br>
                     <small class="text-muted">
-                        {{ entry.changed_at|time:"H:i:s" }}
+                        {{ entry.changed_at|localtime|time:"H:i:s" }}
                     </small>
                 </td>
                 <td>
