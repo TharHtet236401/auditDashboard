@@ -58,8 +58,11 @@ def register_view(request):
 @login_required
 def home(request):
     try:
+
+
         transactions_list = Transaction.objects.all().order_by('-timestamp')
         
+        view_count = request.GET.get('view', 10)
         search_query = request.GET.get('search', '')
         if search_query:
             transactions_list = transactions_list.filter(merchant__icontains=search_query)
@@ -69,6 +72,12 @@ def home(request):
         flag_filter = request.GET.get('flag', '')
         
         filters = Q()
+
+        if view_count:
+            view_count = int(view_count)
+        else:
+            view_count = 10
+
         if status_filter:  # Only filter if a specific status is selected
             filters &= Q(status=status_filter)
             
@@ -79,7 +88,7 @@ def home(request):
         if filters:
             transactions_list = transactions_list.filter(filters)
 
-        paginator = Paginator(transactions_list, 10)
+        paginator = Paginator(transactions_list, view_count)
         page = request.GET.get('page', 1)
         transactions = paginator.get_page(page)
         
